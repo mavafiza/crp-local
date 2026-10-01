@@ -1,0 +1,2048 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NOVA ERP · Training Environment</title>
+<style>
+  :root{
+    --bg:#f4f6fa;
+    --surface:#ffffff;
+    --surface-2:#fafbfd;
+    --border:#e3e7ef;
+    --border-strong:#d0d6e2;
+    --text:#1a2236;
+    --text-soft:#5a6478;
+    --text-muted:#8892a6;
+    --primary:#1e40af;
+    --primary-dark:#1e3a8a;
+    --primary-soft:#e0e7ff;
+    --success:#0f766e;
+    --success-soft:#d1fae5;
+    --warning:#b45309;
+    --warning-soft:#fef3c7;
+    --danger:#b91c1c;
+    --danger-soft:#fee2e2;
+    --info:#0369a1;
+    --info-soft:#e0f2fe;
+    --violet:#6d28d9;
+    --violet-soft:#ede9fe;
+    --orange:#c2410c;
+    --orange-soft:#ffedd5;
+    --gray:#475569;
+    --gray-soft:#e2e8f0;
+    --shadow:0 1px 2px rgba(15,23,42,.04), 0 1px 3px rgba(15,23,42,.06);
+    --shadow-lg:0 10px 25px rgba(15,23,42,.08), 0 4px 10px rgba(15,23,42,.04);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    font-size:14px;color:var(--text);background:var(--bg);line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  button{font-family:inherit;cursor:pointer;border:none;background:none}
+  input,select,textarea{font-family:inherit;font-size:14px}
+  a{color:var(--primary);text-decoration:none}
+
+  /* LAYOUT */
+  .app{display:grid;grid-template-columns:250px 1fr;grid-template-rows:56px 1fr;grid-template-areas:"sidebar header" "sidebar main";min-height:100vh}
+  .sidebar{grid-area:sidebar;background:#0f172a;color:#cbd5e1;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
+  .sidebar-brand{padding:18px 20px;border-bottom:1px solid #1e293b}
+  .sidebar-brand h1{font-size:15px;font-weight:700;color:#fff;letter-spacing:.3px}
+  .sidebar-brand p{font-size:11px;color:#64748b;margin-top:2px;text-transform:uppercase;letter-spacing:.8px}
+  .sidebar-nav{padding:12px 0;flex:1}
+  .nav-section{padding:10px 20px 6px;font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:1px;font-weight:600}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:9px 20px;color:#cbd5e1;font-size:13px;cursor:pointer;border-left:3px solid transparent;transition:all .15s}
+  .nav-item:hover{background:#1e293b;color:#fff}
+  .nav-item.active{background:#1e293b;color:#fff;border-left-color:#3b82f6}
+  .nav-item .ico{width:16px;height:16px;display:inline-block;opacity:.8}
+  .sidebar-footer{padding:14px 20px;border-top:1px solid #1e293b;font-size:11px;color:#64748b}
+  .sidebar-footer b{color:#94a3b8;display:block;margin-bottom:2px}
+
+  .header{grid-area:header;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:50}
+  .header-left{display:flex;align-items:center;gap:16px}
+  .header-left h2{font-size:15px;font-weight:600}
+  .header-left .crumb{font-size:12px;color:var(--text-muted)}
+  .header-right{display:flex;align-items:center;gap:16px}
+  .env-badge{background:#fef3c7;color:#92400e;font-size:11px;padding:4px 10px;border-radius:4px;font-weight:600;letter-spacing:.3px}
+  .user-chip{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-soft)}
+  .avatar{width:30px;height:30px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:12px}
+
+  .main{grid-area:main;padding:24px;overflow-x:auto}
+  .page-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+  .page-head h1{font-size:22px;font-weight:700;color:var(--text)}
+  .page-head p{color:var(--text-soft);font-size:13px;margin-top:4px}
+
+  /* COMPONENTS */
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:6px;font-size:13px;font-weight:500;border:1px solid transparent;transition:all .15s;white-space:nowrap}
+  .btn-primary{background:var(--primary);color:#fff}
+  .btn-primary:hover{background:var(--primary-dark)}
+  .btn-secondary{background:var(--surface);color:var(--text);border-color:var(--border-strong)}
+  .btn-secondary:hover{background:var(--surface-2)}
+  .btn-ghost{background:transparent;color:var(--text-soft)}
+  .btn-ghost:hover{background:var(--surface-2);color:var(--text)}
+  .btn-danger{background:var(--danger);color:#fff}
+  .btn-danger:hover{background:#991b1b}
+  .btn-success{background:var(--success);color:#fff}
+  .btn-success:hover{background:#115e59}
+  .btn-sm{padding:5px 10px;font-size:12px}
+  .btn-lg{padding:10px 18px;font-size:14px}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow)}
+  .card-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+  .card-head h3{font-size:14px;font-weight:600}
+  .card-body{padding:20px}
+  .card-body.np{padding:0}
+
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+  .kpi{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:18px 20px;box-shadow:var(--shadow)}
+  .kpi .label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;font-weight:600}
+  .kpi .value{font-size:26px;font-weight:700;color:var(--text);margin-top:6px}
+  .kpi .sub{font-size:12px;color:var(--text-soft);margin-top:4px}
+  .kpi.accent-blue{border-left:3px solid var(--primary)}
+  .kpi.accent-orange{border-left:3px solid var(--warning)}
+  .kpi.accent-red{border-left:3px solid var(--danger)}
+  .kpi.accent-green{border-left:3px solid var(--success)}
+
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:11px 16px;background:var(--surface-2);color:var(--text-soft);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+  td{padding:12px 16px;border-bottom:1px solid var(--border);color:var(--text)}
+  tbody tr{cursor:pointer;transition:background .1s}
+  tbody tr:hover{background:var(--surface-2)}
+  tbody tr:last-child td{border-bottom:none}
+
+  .badge{display:inline-block;padding:3px 9px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:.3px;text-transform:uppercase}
+  .b-gray{background:var(--gray-soft);color:var(--gray)}
+  .b-blue{background:var(--primary-soft);color:var(--primary-dark)}
+  .b-yellow{background:var(--warning-soft);color:var(--warning)}
+  .b-violet{background:var(--violet-soft);color:var(--violet)}
+  .b-orange{background:var(--orange-soft);color:var(--orange)}
+  .b-green{background:var(--success-soft);color:var(--success)}
+  .b-red{background:var(--danger-soft);color:var(--danger)}
+  .b-info{background:var(--info-soft);color:var(--info)}
+
+  /* FORMS */
+  .form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+  .form-grid.cols-1{grid-template-columns:1fr}
+  .form-field{display:flex;flex-direction:column;gap:6px}
+  .form-field label{font-size:12px;font-weight:600;color:var(--text-soft);text-transform:uppercase;letter-spacing:.3px}
+  .form-field input,.form-field select,.form-field textarea{padding:9px 12px;border:1px solid var(--border-strong);border-radius:6px;background:var(--surface);color:var(--text);transition:border .15s}
+  .form-field input:focus,.form-field select:focus,.form-field textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(30,64,175,.1)}
+  .form-field .hint{font-size:11px;color:var(--text-muted)}
+  .form-field.readonly input{background:var(--surface-2);color:var(--text-soft);cursor:not-allowed}
+  .form-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
+
+  /* MODAL */
+  .modal-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.5);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px;animation:fade .15s}
+  .modal{background:var(--surface);border-radius:10px;max-width:640px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);animation:pop .2s}
+  .modal.lg{max-width:820px}
+  .modal-head{padding:18px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+  .modal-head h3{font-size:16px;font-weight:600}
+  .modal-body{padding:24px}
+  .modal-foot{padding:16px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;background:var(--surface-2)}
+  .close-btn{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:18px}
+  .close-btn:hover{background:var(--surface-2);color:var(--text)}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  @keyframes pop{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}
+
+  /* TOAST */
+  .toast-container{position:fixed;top:70px;right:20px;z-index:200;display:flex;flex-direction:column;gap:10px;max-width:380px}
+  .toast{background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--primary);border-radius:6px;padding:12px 16px;box-shadow:var(--shadow-lg);animation:slide .25s;font-size:13px}
+  .toast.success{border-left-color:var(--success)}
+  .toast.error{border-left-color:var(--danger)}
+  .toast.warning{border-left-color:var(--warning)}
+  .toast b{display:block;font-size:13px;margin-bottom:2px}
+  .toast small{color:var(--text-soft);font-size:12px}
+  @keyframes slide{from{transform:translateX(20px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+  /* TIMELINE */
+  .timeline{position:relative;padding-left:28px}
+  .timeline::before{content:"";position:absolute;left:9px;top:8px;bottom:8px;width:2px;background:var(--border)}
+  .tl-item{position:relative;padding-bottom:22px}
+  .tl-item:last-child{padding-bottom:0}
+  .tl-dot{position:absolute;left:-28px;top:2px;width:20px;height:20px;border-radius:50%;background:var(--surface);border:2px solid var(--primary);display:flex;align-items:center;justify-content:center;z-index:1}
+  .tl-dot.green{border-color:var(--success)}
+  .tl-dot.red{border-color:var(--danger)}
+  .tl-dot.orange{border-color:var(--warning)}
+  .tl-dot::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--primary)}
+  .tl-dot.green::after{background:var(--success)}
+  .tl-dot.red::after{background:var(--danger)}
+  .tl-dot.orange::after{background:var(--warning)}
+  .tl-time{font-size:11px;color:var(--text-muted);font-weight:600;letter-spacing:.3px}
+  .tl-title{font-size:13px;font-weight:600;margin-top:2px}
+  .tl-meta{font-size:12px;color:var(--text-soft);margin-top:3px}
+  .tl-meta span{margin-right:10px}
+
+  /* TABS */
+  .tabs{display:flex;gap:2px;border-bottom:1px solid var(--border);margin-bottom:20px}
+  .tab{padding:10px 16px;font-size:13px;color:var(--text-soft);cursor:pointer;border-bottom:2px solid transparent;font-weight:500}
+  .tab:hover{color:var(--text)}
+  .tab.active{color:var(--primary);border-bottom-color:var(--primary)}
+
+  /* ALERT */
+  .alert{padding:12px 16px;border-radius:6px;font-size:13px;margin-bottom:16px;display:flex;gap:10px;align-items:flex-start}
+  .alert-info{background:var(--info-soft);color:var(--info);border-left:3px solid var(--info)}
+  .alert-warning{background:var(--warning-soft);color:var(--warning);border-left:3px solid var(--warning)}
+  .alert-danger{background:var(--danger-soft);color:var(--danger);border-left:3px solid var(--danger)}
+  .alert-success{background:var(--success-soft);color:var(--success);border-left:3px solid var(--success)}
+
+  /* CHARTS (simple CSS) */
+  .chart-bars{display:flex;align-items:flex-end;gap:12px;height:180px;padding:10px 0}
+  .bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px}
+  .bar{width:100%;background:var(--primary);border-radius:4px 4px 0 0;transition:all .3s;min-height:4px}
+  .bar-label{font-size:11px;color:var(--text-muted)}
+  .bar-value{font-size:11px;font-weight:600;color:var(--text)}
+
+  /* MISSIONS */
+  .mission-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px;margin-bottom:14px;box-shadow:var(--shadow)}
+  .mission-card.done{border-color:var(--success);background:#f0fdf4}
+  .mission-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+  .mission-head h3{font-size:15px;font-weight:600}
+  .mission-head p{color:var(--text-soft);font-size:13px;margin-top:4px}
+  .mission-check{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
+  .check-item{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-soft)}
+  .check-item.done{color:var(--success);font-weight:500}
+  .check-box{width:18px;height:18px;border:2px solid var(--border-strong);border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .check-item.done .check-box{background:var(--success);border-color:var(--success);color:#fff}
+  .progress-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:10px}
+  .progress-fill{height:100%;background:var(--primary);transition:width .3s}
+  .mission-card.done .progress-fill{background:var(--success)}
+
+  /* FLOW DIAGRAM */
+  .flow{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:20px;background:var(--surface-2);border-radius:8px;margin:16px 0}
+  .flow-step{flex:1;min-width:110px;text-align:center;padding:14px 8px;background:var(--surface);border:1px solid var(--border);border-radius:6px;font-size:12px;font-weight:600;color:var(--text-soft)}
+  .flow-step.done{background:var(--success-soft);border-color:var(--success);color:var(--success)}
+  .flow-step.active{background:var(--primary-soft);border-color:var(--primary);color:var(--primary-dark)}
+  .flow-arrow{color:var(--text-muted);font-size:18px;flex-shrink:0}
+
+  /* DETAIL SHEET */
+  .detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px 24px}
+  .detail-item .lbl{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;font-weight:600}
+  .detail-item .val{font-size:14px;color:var(--text);margin-top:3px;font-weight:500}
+
+  .empty{padding:40px 20px;text-align:center;color:var(--text-muted);font-size:13px}
+
+  .search-bar{display:flex;gap:10px;margin-bottom:16px}
+  .search-bar input{flex:1;padding:9px 12px;border:1px solid var(--border-strong);border-radius:6px}
+  .search-bar input:focus{outline:none;border-color:var(--primary)}
+
+  .two-col{display:grid;grid-template-columns:2fr 1fr;gap:20px}
+  @media(max-width:1024px){.two-col{grid-template-columns:1fr}}
+
+  .mono{font-family:"SF Mono",Consolas,monospace;font-size:12px}
+
+  /* FINISH SCREEN */
+  .finish-hero{text-align:center;padding:40px 20px;background:linear-gradient(135deg,#0f766e 0%,#1e40af 100%);color:#fff;border-radius:12px;margin-bottom:24px}
+  .finish-hero h1{font-size:32px;font-weight:700;margin-bottom:8px}
+  .finish-hero p{font-size:15px;opacity:.9}
+
+  .completion-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:20px 0}
+  .comp-item{background:var(--success-soft);color:var(--success);padding:14px;border-radius:8px;text-align:center;font-weight:600;font-size:13px}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <h1>NOVA ERP</h1>
+      <p>Training Environment</p>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">General</div>
+      <div class="nav-item active" data-view="dashboard">▣ Dashboard</div>
+
+      <div class="nav-section">Operaciones</div>
+      <div class="nav-item" data-view="clientes">◉ Clientes</div>
+      <div class="nav-item" data-view="ventas">▤ Ventas</div>
+      <div class="nav-item" data-view="compras">▥ Compras</div>
+      <div class="nav-item" data-view="almacen">▦ Almacén</div>
+      <div class="nav-item" data-view="facturacion">▧ Facturación</div>
+      <div class="nav-item" data-view="tesoreria">▨ Tesorería</div>
+
+      <div class="nav-section">Servicio</div>
+      <div class="nav-item" data-view="incidencias">⚑ Incidencias</div>
+
+      <div class="nav-section">Control</div>
+      <div class="nav-item" data-view="trazabilidad">↯ Trazabilidad</div>
+      <div class="nav-item" data-view="reporting">◫ Reporting</div>
+
+      <div class="nav-section">Formación</div>
+      <div class="nav-item" data-view="formacion">★ Modo formación</div>
+    </nav>
+    <div class="sidebar-footer">
+      <b>Usuario</b>Participante<br>
+      <b>Sesión</b>ERP LAB
+    </div>
+  </aside>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-left">
+      <div>
+        <h2 id="pageTitle">Dashboard</h2>
+        <div class="crumb" id="pageCrumb">NOVA Distribuciones S.L.</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <span class="env-badge">⚠ Entorno de formación · Datos ficticios</span>
+      <div class="user-chip">
+        <div class="avatar">P</div>
+        <div>
+          <div style="font-weight:600;color:var(--text)">Participante</div>
+          <div style="font-size:11px;color:var(--text-muted)">ERP LAB</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="main" id="main"></main>
+</div>
+
+<div class="toast-container" id="toasts"></div>
+<div id="modal-root"></div>
+
+<script>
+/* =========================================================
+   NOVA ERP · Training Environment
+   Simulador pedagógico
+   ========================================================= */
+
+/* ---------- ESTADO GLOBAL ---------- */
+const STORAGE_KEY = "nova_erp_state_v1";
+
+function initialState(){
+  return {
+    clientes: seedClientes(),
+    productos: seedProductos(),
+    pedidos: seedPedidos(),
+    albaranes: seedAlbaranes(),
+    facturas: seedFacturas(),
+    cobros: seedCobros(),
+    incidencias: seedIncidencias(),
+    compras: seedCompras(),
+    trazabilidad: seedTrazabilidad(),
+    misiones: {1:false,2:false,3:false,4:false},
+    counters: {ped:1053,alb:1053,fac:1053,cob:0,inc:42,cli:13}
+  };
+}
+
+let state = loadState();
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return initialState();
+    const parsed = JSON.parse(raw);
+    // asegurar estructura
+    if(!parsed.counters) parsed.counters = initialState().counters;
+    if(!parsed.misiones) parsed.misiones = {1:false,2:false,3:false,4:false};
+    return parsed;
+  }catch(e){ return initialState(); }
+}
+function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+function resetState(){ state = initialState(); saveState(); }
+
+/* ---------- SEED DATA ---------- */
+function seedClientes(){
+  return [
+    {id:"CLI-001",nombre:"Distribuciones Mediterráneo S.L.",cif:"B58213456",direccion:"C/ Marina 214",ciudad:"Barcelona",cp:"08013",pago:"30 días",estado:"ACTIVO",telefono:"93 412 33 10",email:"compras@mediterraneo-fic.es"},
+    {id:"CLI-002",nombre:"Oficina Nova S.L.",cif:"B67324519",direccion:"Av. Sant Francesc 18",ciudad:"Girona",cp:"17004",pago:"Contado",estado:"ACTIVO",telefono:"972 21 44 55",email:"admin@oficinanova-fic.es"},
+    {id:"CLI-003",nombre:"BCN Consulting S.A.",cif:"A58174236",direccion:"Pg. de Gràcia 88",ciudad:"Barcelona",cp:"08008",pago:"45 días",estado:"ACTIVO",telefono:"93 215 67 89",email:"finanzas@bcnconsulting-fic.es"},
+    {id:"CLI-004",nombre:"Técnica Industrial Vallès S.L.",cif:"B62998123",direccion:"C. Indústria 45",ciudad:"Sabadell",cp:"08202",pago:"30 días",estado:"ACTIVO",telefono:"93 717 22 00",email:"info@tecnicavalls-fic.es"},
+    {id:"CLI-005",nombre:"Paperera del Llobregat S.L.",cif:"B61223478",direccion:"Rambla Ferran 12",ciudad:"Martorell",cp:"08760",pago:"60 días",estado:"ACTIVO",telefono:"93 683 11 40",email:"pedidos@papererallob-fic.es"},
+    {id:"CLI-006",nombre:"Grup Logístic Penedès S.A.",cif:"A62554198",direccion:"C. Sant Pau 7",ciudad:"Vilafranca",cp:"08720",pago:"30 días",estado:"ACTIVO",telefono:"93 890 22 11",email:"ops@gruppenedes-fic.es"},
+    {id:"CLI-007",nombre:"Mobiliari Costa Brava S.L.",cif:"B67881234",direccion:"Av. del Mar 55",ciudad:"Palamós",cp:"17230",pago:"Contado",estado:"ACTIVO",telefono:"972 600 300",email:"comercial@mobicosta-fic.es"},
+    {id:"CLI-008",nombre:"Serveis Administratius Tarragona S.L.",cif:"B65112287",direccion:"C. Major 29",ciudad:"Tarragona",cp:"43003",pago:"30 días",estado:"ACTIVO",telefono:"977 22 44 88",email:"admin@servtarragona-fic.es"},
+    {id:"CLI-009",nombre:"Editorial Delta S.L.",cif:"B63445567",direccion:"C. Rosselló 202",ciudad:"Barcelona",cp:"08037",pago:"45 días",estado:"ACTIVO",telefono:"93 455 12 77",email:"pedidos@editorialdelta-fic.es"},
+    {id:"CLI-010",nombre:"Ferretería Central Osona S.L.",cif:"B62334412",direccion:"Pl. Major 4",ciudad:"Vic",cp:"08500",pago:"Contado",estado:"ACTIVO",telefono:"93 889 33 22",email:"compras@ferrosasona-fic.es"},
+    {id:"CLI-011",nombre:"Distribucions Segre S.A.",cif:"A62998765",direccion:"C. Magdalena 15",ciudad:"Lleida",cp:"25007",pago:"30 días",estado:"ACTIVO",telefono:"973 24 55 66",email:"ops@distsegre-fic.es"},
+    {id:"CLI-012",nombre:"Hotel & Office Solutions S.L.",cif:"B64556677",direccion:"Av. Diagonal 440",ciudad:"Barcelona",cp:"08037",pago:"60 días",estado:"ACTIVO",telefono:"93 418 90 00",email:"compras@hoteloffice-fic.es"}
+  ];
+}
+
+function seedProductos(){
+  return [
+    {id:"PRD-001",nombre:"Monitor 24\" Full HD",precio:149.00,stock:42,reservado:0},
+    {id:"PRD-002",nombre:"Teclado mecánico RGB",precio:65.50,stock:78,reservado:10},
+    {id:"PRD-003",nombre:"Ratón inalámbrico ergonómico",precio:24.90,stock:120,reservado:0},
+    {id:"PRD-004",nombre:"Webcam HD 1080p",precio:48.00,stock:35,reservado:5},
+    {id:"PRD-005",nombre:"Auriculares con micrófono",precio:39.90,stock:62,reservado:0},
+    {id:"PRD-006",nombre:"Impresora láser monocromo",precio:189.00,stock:14,reservado:2},
+    {id:"PRD-007",nombre:"Mesa oficina 140x70 cm",precio:215.00,stock:22,reservado:4},
+    {id:"PRD-008",nombre:"Archivador metálico 4 cajones",precio:129.00,stock:18,reservado:0},
+    {id:"PRD-009",nombre:"Silla ergonómica basic",precio:145.00,stock:40,reservado:8},
+    {id:"PRD-010",nombre:"Papel A4 80g (caja 5 resmas)",precio:22.50,stock:210,reservado:20},
+    {id:"PRD-011",nombre:"Bolígrafos azul (caja 50 uds)",precio:14.80,stock:180,reservado:0},
+    {id:"PRD-012",nombre:"Carpetas colgantes (paq 25)",precio:18.20,stock:95,reservado:0},
+    {id:"PRD-013",nombre:"Tóner compatible universal",precio:34.00,stock:48,reservado:6},
+    {id:"PRD-014",nombre:"Pizarra blanca magnética 120x90",precio:78.00,stock:11,reservado:0},
+    {id:"PRD-015",nombre:"Destructor de documentos",precio:119.00,stock:9,reservado:0},
+    {id:"PRD-016",nombre:"Hub USB-C 7 puertos",precio:42.00,stock:55,reservado:0},
+    {id:"PRD-017",nombre:"Base de portátil ajustable",precio:36.50,stock:30,reservado:0},
+    {id:"PRD-018",nombre:"Silla Office Pro",precio:28.00,stock:83,reservado:0},
+    {id:"PRD-019",nombre:"Lámpara LED escritorio",precio:29.90,stock:44,reservado:0},
+    {id:"PRD-020",nombre:"Alfombrilla ratón XL",precio:12.50,stock:88,reservado:0},
+    {id:"PRD-024",nombre:"Producto stock limitado",precio:18.00,stock:32,reservado:0}
+  ];
+}
+
+function seedPedidos(){
+  const hoy = new Date(2026,9,2);
+  const d = (dias)=>{const x=new Date(hoy);x.setDate(x.getDate()-dias);return x.toISOString().slice(0,10)};
+  return [
+    {id:"PED-1040",cliente:"CLI-002",fecha:d(10),importe:420,estado:"CERRADO",lineas:[{prod:"PRD-010",cant:10,precio:22.5}]},
+    {id:"PED-1041",cliente:"CLI-003",fecha:d(9),importe:1240,estado:"CERRADO",lineas:[{prod:"PRD-001",cant:4,precio:149},{prod:"PRD-003",cant:10,precio:24.9}]},
+    {id:"PED-1042",cliente:"CLI-005",fecha:d(7),importe:645,estado:"FACTURADO",lineas:[{prod:"PRD-007",cant:3,precio:215}]},
+    {id:"PED-1043",cliente:"CLI-006",fecha:d(5),importe:1190,estado:"FACTURADO",lineas:[{prod:"PRD-009",cant:5,precio:145},{prod:"PRD-008",cant:2,precio:129}]},
+    {id:"PED-1044",cliente:"CLI-007",fecha:d(4),importe:890,estado:"EXPEDIDO",lineas:[{prod:"PRD-002",cant:10,precio:65.5},{prod:"PRD-005",cant:5,precio:39.9}]},
+    {id:"PED-1045",cliente:"CLI-002",fecha:d(2),importe:2340,estado:"FACTURADO",lineas:[{prod:"PRD-001",cant:8,precio:149},{prod:"PRD-004",cant:10,precio:48}]},
+    {id:"PED-1046",cliente:"CLI-003",fecha:d(2),importe:820,estado:"PREPARACION",lineas:[{prod:"PRD-007",cant:2,precio:215},{prod:"PRD-019",cant:6,precio:29.9},{prod:"PRD-020",cant:10,precio:12.5}]},
+    {id:"PED-1047",cliente:"CLI-001",fecha:d(0),importe:1400,estado:"CONFIRMADO",lineas:[{prod:"PRD-018",cant:50,precio:28}]},
+    {id:"PED-1048",cliente:"CLI-004",fecha:d(1),importe:560,estado:"BORRADOR",lineas:[{prod:"PRD-010",cant:20,precio:22.5}]},
+    {id:"PED-1049",cliente:"CLI-008",fecha:d(1),importe:1300,estado:"CONFIRMADO",lineas:[{prod:"PRD-009",cant:4,precio:145},{prod:"PRD-017",cant:5,precio:36.5}]},
+    {id:"PED-1050",cliente:"CLI-009",fecha:d(0),importe:720,estado:"PENDIENTE_STOCK",lineas:[{prod:"PRD-024",cant:40,precio:18}]},
+    {id:"PED-1051",cliente:"CLI-010",fecha:d(0),importe:430,estado:"PREPARACION",lineas:[{prod:"PRD-003",cant:10,precio:24.9},{prod:"PRD-020",cant:10,precio:12.5}]},
+    {id:"PED-1052",cliente:"CLI-011",fecha:d(3),importe:1400,estado:"FACTURADO",lineas:[{prod:"PRD-018",cant:50,precio:28}]},
+    {id:"PED-1053",cliente:"CLI-012",fecha:d(0),importe:980,estado:"BORRADOR",lineas:[{prod:"PRD-006",cant:2,precio:189},{prod:"PRD-013",cant:10,precio:34}]}
+  ];
+}
+
+function seedAlbaranes(){
+  return [
+    {id:"ALB-1040",pedido:"PED-1040",fecha:"2026-09-23",estado:"EXPEDIDO"},
+    {id:"ALB-1041",pedido:"PED-1041",fecha:"2026-09-24",estado:"EXPEDIDO"},
+    {id:"ALB-1042",pedido:"PED-1042",fecha:"2026-09-26",estado:"EXPEDIDO"},
+    {id:"ALB-1043",pedido:"PED-1043",fecha:"2026-09-28",estado:"EXPEDIDO"},
+    {id:"ALB-1044",pedido:"PED-1044",fecha:"2026-09-29",estado:"EXPEDIDO"},
+    {id:"ALB-1045",pedido:"PED-1045",fecha:"2026-09-30",estado:"EXPEDIDO"},
+    {id:"ALB-1046",pedido:"PED-1046",fecha:"2026-10-01",estado:"PREPARADO"},
+    {id:"ALB-1049",pedido:"PED-1049",fecha:"2026-10-01",estado:"PREPARADO"},
+    {id:"ALB-1051",pedido:"PED-1051",fecha:"2026-10-02",estado:"PREPARADO"},
+    {id:"ALB-1052",pedido:"PED-1052",fecha:"2026-09-30",estado:"EXPEDIDO"}
+  ];
+}
+
+function seedFacturas(){
+  return [
+    {id:"FAC-1040",pedido:"PED-1040",cliente:"CLI-002",fecha:"2026-09-24",base:420,iva:88.2,total:508.2,estado:"COBRADA"},
+    {id:"FAC-1041",pedido:"PED-1041",cliente:"CLI-003",fecha:"2026-09-25",base:1240,iva:260.4,total:1500.4,estado:"COBRADA"},
+    {id:"FAC-1042",pedido:"PED-1042",cliente:"CLI-005",fecha:"2026-09-27",base:645,iva:135.45,total:780.45,estado:"PENDIENTE"},
+    {id:"FAC-1043",pedido:"PED-1043",cliente:"CLI-006",fecha:"2026-09-29",base:1190,iva:249.9,total:1439.9,estado:"PENDIENTE"},
+    {id:"FAC-1044",pedido:"PED-1044",cliente:"CLI-007",fecha:"2026-09-30",base:890,iva:186.9,total:1076.9,estado:"PENDIENTE"},
+    {id:"FAC-1045",pedido:"PED-1045",cliente:"CLI-002",fecha:"2026-10-01",base:2340,iva:491.4,total:2831.4,estado:"COBRADA"},
+    {id:"FAC-1052",pedido:"PED-1052",cliente:"CLI-011",fecha:"2026-10-01",base:1500,iva:315,total:1815,estado:"PENDIENTE"}
+  ];
+}
+
+function seedCobros(){
+  return [
+    {id:"COB-001",factura:"FAC-1040",fecha:"2026-10-01",importe:508.2,metodo:"Transferencia",estado:"TOTAL"},
+    {id:"COB-002",factura:"FAC-1041",fecha:"2026-10-02",importe:1500.4,metodo:"Transferencia",estado:"TOTAL"},
+    {id:"COB-003",factura:"FAC-1045",fecha:"2026-10-02",importe:2831.4,metodo:"Domiciliacion",estado:"TOTAL"}
+  ];
+}
+
+function seedIncidencias(){
+  return [
+    {id:"INC-0035",cliente:"CLI-004",pedido:"PED-1043",categoria:"Facturación",prioridad:"Media",descripcion:"Disconformidad con el IVA aplicado.",estado:"RESUELTA",responsable:"Administración",solucion:"Se emitió nota de crédito y nueva factura.",creada:"2026-09-28 09:12"},
+    {id:"INC-0036",cliente:"CLI-005",pedido:"PED-1042",categoria:"Entrega",prioridad:"Alta",descripcion:"Paquete recibido con embalaje dañado.",estado:"EN_GESTION",responsable:"Logística",solucion:"",creada:"2026-09-29 11:40"},
+    {id:"INC-0037",cliente:"CLI-007",pedido:"PED-1044",categoria:"Calidad",prioridad:"Media",descripcion:"Teclado recibido con defecto en tecla Enter.",estado:"ABIERTA",responsable:"",solucion:"",creada:"2026-09-30 10:05"},
+    {id:"INC-0038",cliente:"CLI-009",pedido:"PED-1050",categoria:"Stock",prioridad:"Alta",descripcion:"Pedido no puede completarse por falta de stock.",estado:"ABIERTA",responsable:"",solucion:"",creada:"2026-10-01 08:30"},
+    {id:"INC-0039",cliente:"CLI-003",pedido:"PED-1046",categoria:"Entrega",prioridad:"Baja",descripcion:"Confirmación de dirección de entrega.",estado:"EN_GESTION",responsable:"Ventas",solucion:"",creada:"2026-10-01 14:22"},
+    {id:"INC-0040",cliente:"CLI-012",pedido:null,categoria:"Administración",prioridad:"Baja",descripcion:"Solicitud de actualización de datos fiscales.",estado:"ABIERTA",responsable:"",solucion:"",creada:"2026-10-02 09:15"}
+  ];
+}
+
+function seedCompras(){
+  return [
+    {id:"OC-2201",proveedor:"Suministros Ibéricos S.A.",producto:"PRD-018",cantidad:100,estado:"Confirmado"},
+    {id:"OC-2202",proveedor:"Papelera del Norte S.L.",producto:"PRD-010",cantidad:500,estado:"Pendiente"},
+    {id:"OC-2203",proveedor:"TechParts Europe S.L.",producto:"PRD-001",cantidad:30,estado:"En tránsito"},
+    {id:"OC-2204",proveedor:"Mobiliario Profesional S.A.",producto:"PRD-007",cantidad:20,estado:"Confirmado"}
+  ];
+}
+
+function seedTrazabilidad(){
+  const t = (h,m,mod,accion,doc,estadoA,estadoN,extra="")=>({
+    id:"T"+Math.random().toString(36).slice(2,9),
+    fecha:"2026-10-02",hora:`${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}`,
+    modulo:mod,accion,documento:doc,estadoAnt:estadoA,estadoNew:estadoN,usuario:"sistema",extra
+  });
+  return [
+    t(8,15,"Ventas","Pedido creado","PED-1046","—","BORRADOR",""),
+    t(8,22,"Ventas","Pedido confirmado","PED-1046","BORRADOR","CONFIRMADO",""),
+    t(8,22,"Almacén","Stock reservado","PED-1046","—","RESERVADO","820 € · 3 líneas"),
+    t(8,40,"Almacén","Albarán generado","ALB-1046","—","PREPARADO",""),
+    t(9,5,"Ventas","Pedido creado","PED-1047","—","BORRADOR","Cliente: Distribuciones Mediterráneo"),
+    t(9,42,"Ventas","Pedido confirmado","PED-1047","BORRADOR","CONFIRMADO","1.400 €"),
+    t(9,42,"Almacén","Stock reservado","PED-1047","—","RESERVADO","50 uds PRD-018"),
+    t(9,10,"Facturación","Factura emitida","FAC-1045","—","PENDIENTE","2.831,40 €"),
+    t(9,21,"Tesorería","Cobro registrado","FAC-1045","PENDIENTE","COBRADA","2.831,40 €"),
+    t(9,36,"Facturación","Factura emitida","FAC-1052","—","PENDIENTE","1.815 €"),
+    t(9,48,"Incidencias","Incidencia abierta","INC-0038","—","ABIERTA","Stock insuficiente"),
+    t(10,2,"Almacén","Albarán generado","ALB-1051","—","PREPARADO",""),
+    t(10,15,"Incidencias","Incidencia abierta","INC-0040","—","ABIERTA","Actualización datos fiscales")
+  ];
+}
+
+/* ---------- UTILIDADES ---------- */
+const fmtEur = n => (n||0).toLocaleString("es-ES",{minimumFractionDigits:2,maximumFractionDigits:2})+" €";
+const fmtDate = d => { if(!d) return "—"; const x=new Date(d); return x.toLocaleDateString("es-ES",{day:"2-digit",month:"2-digit",year:"numeric"});};
+const nowTime = ()=>{const d=new Date();return `${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;};
+const nowDate = ()=>new Date().toISOString().slice(0,10);
+const clienteById = id => state.clientes.find(c=>c.id===id);
+const productoById = id => state.productos.find(p=>p.id===id);
+const pedidoById = id => state.pedidos.find(p=>p.id===id);
+const albaranByPedido = id => state.albaranes.find(a=>a.pedido===id);
+const facturaByPedido = id => state.facturas.find(f=>f.pedido===id);
+
+function badgeEstado(estado){
+  const map = {
+    "BORRADOR":"b-gray","CONFIRMADO":"b-blue","PREPARACION":"b-yellow","PREPARACIÓN":"b-yellow",
+    "EXPEDIDO":"b-violet","FACTURADO":"b-orange","CERRADO":"b-green","PENDIENTE_STOCK":"b-red",
+    "PENDIENTE":"b-yellow","PENDIENTE DE COBRO":"b-orange","COBRO_PARCIAL":"b-yellow","COBRO PARCIAL":"b-yellow",
+    "COBRADA":"b-green","PREPARADO":"b-yellow",
+    "ABIERTA":"b-red","EN_GESTION":"b-yellow","EN GESTIÓN":"b-yellow","RESUELTA":"b-blue","CERRADA":"b-gray"
+  };
+  const label = estado.replace("_"," ");
+  return `<span class="badge ${map[estado]||"b-gray"}">${label}</span>`;
+}
+
+function addTrace(modulo,accion,documento,estadoA,estadoN,extra=""){
+  state.trazabilidad.unshift({
+    id:"T"+Math.random().toString(36).slice(2,9),
+    fecha:nowDate(),hora:nowTime(),
+    modulo,accion,documento,
+    estadoAnt:estadoA,estadoNew:estadoN,
+    usuario:"Participante",extra
+  });
+  saveState();
+}
+
+/* ---------- TOASTS ---------- */
+function toast(msg,type="info",sub=""){
+  const el = document.createElement("div");
+  el.className = "toast "+type;
+  el.innerHTML = `<b>${msg}</b>${sub?`<small>${sub}</small>`:""}`;
+  document.getElementById("toasts").appendChild(el);
+  setTimeout(()=>{el.style.opacity="0";el.style.transform="translateX(20px)";el.style.transition="all .25s";setTimeout(()=>el.remove(),250)},3500);
+}
+
+/* ---------- MODAL ---------- */
+function modal({title,body,footer,size=""}){
+  const root = document.getElementById("modal-root");
+  root.innerHTML = `
+    <div class="modal-backdrop" id="modalBg">
+      <div class="modal ${size}">
+        <div class="modal-head">
+          <h3>${title}</h3>
+          <button class="close-btn" onclick="closeModal()">×</button>
+        </div>
+        <div class="modal-body">${body}</div>
+        ${footer?`<div class="modal-foot">${footer}</div>`:""}
+      </div>
+    </div>`;
+  document.getElementById("modalBg").addEventListener("click",e=>{if(e.target.id==="modalBg")closeModal()});
+}
+function closeModal(){ document.getElementById("modal-root").innerHTML=""; }
+
+/* ---------- ROUTER ---------- */
+const views = {
+  dashboard: renderDashboard,
+  clientes: renderClientes,
+  ventas: renderVentas,
+  compras: renderCompras,
+  almacen: renderAlmacen,
+  facturacion: renderFacturacion,
+  tesoreria: renderTesoreria,
+  incidencias: renderIncidencias,
+  trazabilidad: renderTrazabilidad,
+  reporting: renderReporting,
+  formacion: renderFormacion
+};
+
+const titles = {
+  dashboard:"Dashboard",clientes:"Clientes",ventas:"Pedidos de venta",compras:"Compras a proveedores",
+  almacen:"Almacén",facturacion:"Facturación",tesoreria:"Tesorería",incidencias:"Incidencias",
+  trazabilidad:"Trazabilidad",reporting:"Reporting",formacion:"Modo formación"
+};
+
+let currentView = "dashboard";
+let currentDetail = null;
+
+document.querySelectorAll(".nav-item").forEach(it=>{
+  it.addEventListener("click",()=>{
+    document.querySelectorAll(".nav-item").forEach(x=>x.classList.remove("active"));
+    it.classList.add("active");
+    currentView = it.dataset.view;
+    currentDetail = null;
+    render();
+  });
+});
+
+function render(){
+  document.getElementById("pageTitle").textContent = titles[currentView];
+  document.getElementById("pageCrumb").textContent = "NOVA Distribuciones S.L. · " + titles[currentView];
+  document.getElementById("main").innerHTML = views[currentView]();
+  // re-bind dynamic events after render
+  bindViewEvents();
+}
+
+function bindViewEvents(){
+  // common delegated events are attached via onclick in HTML strings
+}
+
+/* ---------- DASHBOARD ---------- */
+function renderDashboard(){
+  const pedidosAbiertos = state.pedidos.filter(p=>!["CERRADO","FACTURADO"].includes(p.estado)).length;
+  const pedidosPend = state.pedidos.filter(p=>["CONFIRMADO","PREPARACION","PENDIENTE_STOCK"].includes(p.estado)).length;
+  const factPend = state.facturas.filter(f=>["PENDIENTE","PENDIENTE DE COBRO"].includes(f.estado)).length;
+  const incidAb = state.incidencias.filter(i=>["ABIERTA","EN_GESTION"].includes(i.estado)).length;
+  const ventasMes = state.facturas.reduce((s,f)=>s+f.base,0);
+  const cobrosPend = state.facturas.filter(f=>["PENDIENTE","PENDIENTE DE COBRO","COBRO_PARCIAL","COBRO PARCIAL"].includes(f.estado)).reduce((s,f)=>s+f.total,0);
+  const stockBajo = state.productos.filter(p=>(p.stock-p.reservado)<20).length;
+  const retrasados = state.pedidos.filter(p=>["CONFIRMADO","PREPARACION"].includes(p.estado)).length;
+
+  const recientes = state.trazabilidad.slice(0,8);
+
+  return `
+    <div class="page-head">
+      <div>
+        <h1>Panel de control</h1>
+        <p>Resumen operativo de NOVA Distribuciones S.L.</p>
+      </div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi accent-blue"><div class="label">Pedidos abiertos</div><div class="value">${pedidosAbiertos}</div><div class="sub">En curso</div></div>
+      <div class="kpi accent-orange"><div class="label">Pedidos pendientes</div><div class="value">${pedidosPend}</div><div class="sub">Por preparar o expedir</div></div>
+      <div class="kpi accent-orange"><div class="label">Facturas pendientes</div><div class="value">${factPend}</div><div class="sub">Por cobrar</div></div>
+      <div class="kpi accent-red"><div class="label">Incidencias abiertas</div><div class="value">${incidAb}</div><div class="sub">Activas</div></div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi accent-green"><div class="label">Ventas del mes</div><div class="value">${fmtEur(ventasMes)}</div><div class="sub">Base imponible</div></div>
+      <div class="kpi accent-orange"><div class="label">Cobros pendientes</div><div class="value">${fmtEur(cobrosPend)}</div><div class="sub">Total pendiente</div></div>
+      <div class="kpi accent-red"><div class="label">Stock bajo</div><div class="value">${stockBajo}</div><div class="sub">Productos &lt; 20 uds</div></div>
+      <div class="kpi accent-blue"><div class="label">Pedidos en preparación</div><div class="value">${retrasados}</div><div class="sub">Confirmados</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>Actividad reciente</h3><button class="btn btn-ghost btn-sm" onclick="go('trazabilidad')">Ver trazabilidad completa →</button></div>
+      <div class="card-body np">
+        <table>
+          <thead><tr><th>Hora</th><th>Evento</th><th>Documento</th><th>Módulo</th><th>Estado</th></tr></thead>
+          <tbody>
+            ${recientes.map(t=>`
+              <tr onclick="showTraceDetail('${t.id}')">
+                <td class="mono">${t.hora}</td>
+                <td>${t.accion}</td>
+                <td class="mono">${t.documento}</td>
+                <td>${t.modulo}</td>
+                <td>${badgeEstado(t.estadoNew)}</td>
+              </tr>`).join("")}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function showTraceDetail(id){
+  const t = state.trazabilidad.find(x=>x.id===id);
+  if(!t) return;
+  modal({
+    title:"Detalle del evento",
+    body:`
+      <div class="detail-grid">
+        <div class="detail-item"><div class="lbl">Fecha</div><div class="val">${fmtDate(t.fecha)}</div></div>
+        <div class="detail-item"><div class="lbl">Hora</div><div class="val mono">${t.hora}</div></div>
+        <div class="detail-item"><div class="lbl">Módulo</div><div class="val">${t.modulo}</div></div>
+        <div class="detail-item"><div class="lbl">Usuario</div><div class="val">${t.usuario}</div></div>
+        <div class="detail-item"><div class="lbl">Acción</div><div class="val">${t.accion}</div></div>
+        <div class="detail-item"><div class="lbl">Documento</div><div class="val mono">${t.documento}</div></div>
+        <div class="detail-item"><div class="lbl">Estado anterior</div><div class="val">${t.estadoAnt||"—"}</div></div>
+        <div class="detail-item"><div class="lbl">Estado nuevo</div><div class="val">${badgeEstado(t.estadoNew)}</div></div>
+      </div>
+      ${t.extra?`<div style="margin-top:16px;padding:12px;background:var(--surface-2);border-radius:6px;font-size:13px;color:var(--text-soft)"><b>Observaciones:</b> ${t.extra}</div>`:""}
+    `
+  });
+}
+
+function go(view){
+  document.querySelectorAll(".nav-item").forEach(x=>x.classList.remove("active"));
+  document.querySelector(`.nav-item[data-view="${view}"]`).classList.add("active");
+  currentView = view;
+  currentDetail = null;
+  render();
+  window.scrollTo(0,0);
+}
+
+/* ---------- CLIENTES ---------- */
+function renderClientes(){
+  if(currentDetail) return renderClienteDetail(currentDetail);
+  return `
+    <div class="page-head">
+      <div><h1>Clientes</h1><p>Gestión de la base de clientes</p></div>
+      <button class="btn btn-primary" onclick="openNewCliente()">+ Nuevo cliente</button>
+    </div>
+    <div class="card">
+      <div class="card-body np">
+        <table>
+          <thead><tr><th>Código</th><th>Cliente</th><th>CIF</th><th>Ciudad</th><th>Estado</th></tr></thead>
+          <tbody>
+            ${state.clientes.map(c=>`
+              <tr onclick="openCliente('${c.id}')">
+                <td class="mono">${c.id}</td>
+                <td><b>${c.nombre}</b></td>
+                <td class="mono">${c.cif}</td>
+                <td>${c.ciudad}</td>
+                <td>${badgeEstado(c.estado)}</td>
+              </tr>`).join("")}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function renderClienteDetail(id){
+  const c = clienteById(id);
+  if(!c) return `<div class="empty">Cliente no encontrado</div>`;
+  const pedidos = state.pedidos.filter(p=>p.cliente===id);
+  const facturas = state.facturas.filter(f=>f.cliente===id);
+  const incid = state.incidencias.filter(i=>i.cliente===id);
+  const traces = state.trazabilidad.filter(t=>t.documento===id || pedidos.some(p=>p.id===t.documento));
+
+  return `
+    <div class="page-head">
+      <div>
+        <button class="btn btn-ghost btn-sm" onclick="currentDetail=null;render()">← Volver a Clientes</button>
+        <h1 style="margin-top:8px">${c.nombre}</h1>
+        <p>${c.id} · ${c.ciudad}</p>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-body">
+        <div class="detail-grid">
+          <div class="detail-item"><div class="lbl">CIF</div><div class="val mono">${c.cif}</div></div>
+          <div class="detail-item"><div class="lbl">Dirección</div><div class="val">${c.direccion}<br>${c.cp} ${c.ciudad}</div></div>
+          <div class="detail-item"><div class="lbl">Condiciones de pago</div><div class="val">${c.pago}</div></div>
+          <div class="detail-item"><div class="lbl">Estado</div><div class="val">${badgeEstado(c.estado)}</div></div>
+          <div class="detail-item"><div class="lbl">Teléfono</div><div class="val">${c.telefono}</div></div>
+          <div class="detail-item"><div class="lbl">Email</div><div class="val">${c.email}</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active">Pedidos (${pedidos.length})</div>
+      <div class="tab">Facturas (${facturas.length})</div>
+      <div class="tab">Incidencias (${incid.length})</div>
+      <div class="tab">Historial (${traces.length})</div>
+    </div>
+
+    <div class="card">
+      <div class="card-body np">
+        <table>
+          <thead><tr><th>Pedido</th><th>Fecha</th><th>Importe</th><th>Estado</th></tr></thead>
+          <tbody>
+            ${pedidos.length?pedidos.map(p=>`
+              <tr onclick="go('ventas');setTimeout(()=>openPedido('${p.id}'),50)">
+                <td class="mono">${p.id}</td>
+                <td>${fmtDate(p.fecha)}</td>
+                <td>${fmtEur(p.importe)}</td>
+                <td>${badgeEstado(p.estado)}</td>
+              </tr>`).join(""):`<tr><td colspan="4" class="empty">Sin pedidos</td></tr>`}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function openCliente(id){ currentDetail = id; render(); }
+
+function openNewCliente(){
+  modal({
+    title:"Nuevo cliente",
+    body:`
+      <div class="form-grid">
+        <div class="form-field"><label>Nombre comercial</label><input id="nc_nombre" placeholder="Ej. Empresa Ejemplo S.L."></div>
+        <div class="form-field"><label>CIF</label><input id="nc_cif" placeholder="B12345678" maxlength="9" style="text-transform:uppercase"></div>
+        <div class="form-field"><label>Dirección</label><input id="nc_dir" placeholder="C/ Ejemplo 1"></div>
+        <div class="form-field"><label>Ciudad</label><input id="nc_ciudad" placeholder="Barcelona"></div>
+        <div class="form-field"><label>Código postal</label><input id="nc_cp" placeholder="08001"></div>
+        <div class="form-field"><label>Condiciones de pago</label>
+          <select id="nc_pago"><option>Contado</option><option>30 días</option><option>45 días</option><option>60 días</option></select>
+        </div>
+        <div class="form-field"><label>Teléfono</label><input id="nc_tel" placeholder="93 000 00 00"></div>
+        <div class="form-field"><label>Email</label><input id="nc_email" placeholder="contacto@empresa.es"></div>
+      </div>
+    `,
+    footer:`<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+            <button class="btn btn-primary" onclick="saveNewCliente()">Guardar cliente</button>`,
+    size:"lg"
+  });
+}
+
+function saveNewCliente(){
+  const nombre = document.getElementById("nc_nombre").value.trim();
+  const cif = document.getElementById("nc_cif").value.trim().toUpperCase();
+  const dir = document.getElementById("nc_dir").value.trim();
+  const ciudad = document.getElementById("nc_ciudad").value.trim();
+  const cp = document.getElementById("nc_cp").value.trim();
+  const pago = document.getElementById("nc_pago").value;
+  const tel = document.getElementById("nc_tel").value.trim();
+  const email = document.getElementById("nc_email").value.trim();
+
+  if(!nombre||!cif){ toast("Datos incompletos","error","Nombre y CIF son obligatorios."); return; }
+  if(!/^[A-Z0-9]{8,9}$/.test(cif)){ toast("CIF no válido","error","El formato debe ser letra + 7-8 dígitos."); return; }
+
+  const existe = state.clientes.find(c=>c.cif===cif);
+  if(existe){
+    modal({
+      title:"⚠ Cliente existente",
+      body:`
+        <div class="alert alert-danger">
+          <div>
+            <b>No se puede crear un cliente duplicado.</b><br>
+            El CIF <span class="mono">${cif}</span> ya pertenece a:<br><br>
+            <b>${existe.id}</b> · ${existe.nombre}<br>
+            ${existe.ciudad}
+          </div>
+        </div>
+        <p style="font-size:13px;color:var(--text-soft)">En un ERP, los datos maestros deben ser únicos. Un CIF duplicado provocaría errores en facturación, cobros y trazabilidad.</p>
+      `,
+      footer:`<button class="btn btn-primary" onclick="closeModal()">Entendido</button>`
+    });
+    addTrace("Clientes","Validación duplicado","—","—","BLOQUEADO",`CIF ${cif} duplicado`);
+    return;
+  }
+
+  const newId = "CLI-"+String(state.counters.cli).padStart(3,"0");
+  state.counters.cli++;
+  state.clientes.push({id:newId,nombre,cif,direccion:dir,ciudad,cp,pago,estado:"ACTIVO",telefono:tel,email});
+  addTrace("Clientes","Cliente creado",newId,"—","ACTIVO",nombre);
+  saveState();
+  closeModal();
+  toast("Cliente creado correctamente",`Se ha generado ${newId}`,"success");
+  render();
+}
+
+/* ---------- VENTAS / PEDIDOS ---------- */
+function renderVentas(){
+  if(currentDetail) return renderPedidoDetail(currentDetail);
+  return `
+    <div class="page-head">
+      <div><h1>Pedidos de venta</h1><p>Gestión del ciclo completo de ventas</p></div>
+      <button class="btn btn-primary" onclick="openNewPedido()">+ Nuevo pedido</button>
+    </div>
+    <div class="card">
+      <div class="card-body np">
+        <table>
+          <thead><tr><th>Pedido</th><th>Cliente</th><th>Fecha</th><th>Importe</th><th>Estado</th></tr></thead>
+          <tbody>
+            ${state.pedidos.slice().reverse().map(p=>{
+              const c = clienteById(p.cliente);
+              return `<tr onclick="openPedido('${p.id}')">
+                <td class="mono"><b>${p.id}</b></td>
+                <td>${c?c.nombre:"—"}</td>
+                <td>${fmtDate(p.fecha)}</td>
+                <td>${fmtEur(p.importe)}</td>
+                <td>${badgeEstado(p.estado)}</td>
+              </tr>`;
+            }).join("")}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function renderPedidoDetail(id){
+  const p = pedidoById(id);
+  if(!p) return `<div class="empty">Pedido no encontrado</div>`;
+  const c = clienteById(p.cliente);
+  const alb = albaranByPedido(id);
+  const fac = facturaByPedido(id);
+  const traces = state.trazabilidad.filter(t=>t.documento===id || (alb&&t.documento===alb.id) || (fac&&t.documento===fac.id));
+
+  return `
+    <div class="page-head">
+      <div>
+        <button class="btn btn-ghost btn-sm" onclick="currentDetail=null;render()">← Volver a Ventas</button>
+        <h1 style="margin-top:8px">${p.id}</h1>
+        <p>${c?c.nombre:""} · ${fmtDate(p.fecha)}</p>
+      </div>
+      <div style="display:flex;gap:8px">
+        ${p.estado==="BORRADOR"?`<button class="btn btn-primary" onclick="confirmarPedido('${p.id}')">Confirmar pedido</button>`:""}
+        ${p.estado==="CONFIRMADO" && !alb?`<button class="btn btn-secondary" onclick="go('almacen');setTimeout(()=>prepararPedido('${p.id}'),50)">Enviar a almacén</button>`:""}
+      </div>
+    </div>
+
+    <div class="flow">
+      <div class="flow-step ${["BORRADOR","CONFIRMADO","PREPARACION","EXPEDIDO","FACTURADO","CERRADO"].includes(p.estado)?"done":""}">Pedido<br><small>${fmtEur(p.importe)}</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step ${["CONFIRMADO","PREPARACION","EXPEDIDO","FACTURADO","CERRADO"].includes(p.estado)?"done":""}">Stock<br><small>Reserva</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step ${alb?(alb.estado==="EXPEDIDO"?"done":"active"):""}">Albarán<br><small>${alb?alb.id:"Pendiente"}</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step ${fac?"done":""}">Factura<br><small>${fac?fac.id:"Pendiente"}</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step ${fac&&fac.estado==="COBRADA"?"done":""}">Cobro<br><small>${fac&&fac.estado==="COBRADA"?"Cobrado":"Pendiente"}</small></div>
+    </div>
+
+    <div class="two-col">
+      <div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-head"><h3>Información del pedido</h3>${badgeEstado(p.estado)}</div>
+          <div class="card-body">
+            <div class="detail-grid">
+              <div class="detail-item"><div class="lbl">Cliente</div><div class="val">${c?c.nombre:"—"}</div></div>
+              <div class="detail-item"><div class="lbl">CIF</div><div class="val mono">${c?c.cif:"—"}</div></div>
+              <div class="detail-item"><div class="lbl">Fecha</div><div class="val">${fmtDate(p.fecha)}</div></div>
+              <div class="detail-item"><div class="lbl">Importe</div><div class="val"><b>${fmtEur(p.importe)}</b></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h3>Líneas del pedido</h3></div>
+          <div class="card-body np">
+            <table>
+              <thead><tr><th>Producto</th><th>Cantidad</th><th>Precio</th><th>Subtotal</th></tr></thead>
+              <tbody>
+                ${p.lineas.map(l=>{
+                  const pr = productoById(l.prod);
+                  return `<tr>
+                    <td><b>${l.prod}</b> · ${pr?pr.nombre:""}</td>
+                    <td>${l.cant}</td>
+                    <td>${fmtEur(l.precio)}</td>
+                    <td>${fmtEur(l.cant*l.precio)}</td>
+                  </tr>`;
+                }).join("")}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-head"><h3>Documentos vinculados</h3></div>
+          <div class="card-body">
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div style="padding:10px;background:var(--surface-2);border-radius:6px">
+                <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase">Pedido</div>
+                <div class="mono" style="font-weight:600">${p.id}</div>
+              </div>
+              <div style="padding:10px;background:var(--surface-2);border-radius:6px">
+                <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase">Albarán</div>
+                <div class="mono" style="font-weight:600">${alb?alb.id:"—"}</div>
+                ${alb?`<div style="font-size:12px;margin-top:3px">${badgeEstado(alb.estado)}</div>`:""}
+              </div>
+              <div style="padding:10px;background:var(--surface-2);border-radius:6px">
+                <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase">Factura</div>
+                <div class="mono" style="font-weight:600">${fac?fac.id:"—"}</div>
+                ${fac?`<div style="font-size:12px;margin-top:3px">${badgeEstado(fac.estado)} · ${fmtEur(fac.total)}</div>`:""}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h3>Trazabilidad</h3></div>
+          <div class="card-body">
+            <div class="timeline">
+              ${traces.slice().reverse().map(t=>`
+                <div class="tl-item">
+                  <div class="tl-dot ${t.estadoNew==="COBRADA"||t.estadoNew==="CERRADO"?"green":t.estadoNew.includes("BLOQUE")?"red":""}"></div>
+                  <div class="tl-time">${t.hora} · ${t.modulo}</div>
+                  <div class="tl-title">${t.accion}</div>
+                  <div class="tl-meta"><span class="mono">${t.documento}</span>${t.extra?`<span>· ${t.extra}</span>`:""}</div>
+                </div>`).join("")}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function openPedido(id){ currentDetail = id; render(); }
+
+function openNewPedido(){
+  const optsClientes = state.clientes.map(c=>`<option value="${c.id}">${c.nombre} (${c.id})</option>`).join("");
+  const optsProds = state.productos.map(p=>`<option value="${p.id}" data-precio="${p.precio}" data-stock="${p.stock-p.reservado}">${p.id} · ${p.nombre} · ${fmtEur(p.precio)} · Stock: ${p.stock-p.reservado}</option>`).join("");
+
+  modal({
+    title:"Nuevo pedido",
+    body:`
+      <div class="form-grid">
+        <div class="form-field"><label>Cliente</label><select id="np_cliente">${optsClientes}</select></div>
+        <div class="form-field"><label>Producto</label><select id="np_prod" onchange="updatePedidoCalc()">${optsProds}</select></div>
+        <div class="form-field"><label>Cantidad</label><input type="number" id="np_cant" value="1" min="1" onchange="updatePedidoCalc()" oninput="updatePedidoCalc()"></div>
+        <div class="form-field"><label>Precio unitario</label><input type="number" id="np_precio" step="0.01" onchange="updatePedidoCalc()" oninput="updatePedidoCalc()"></div>
+        <div class="form-field readonly"><label>Disponibilidad</label><input id="np_disp" readonly></div>
+        <div class="form-field readonly"><label>Subtotal</label><input id="np_sub" readonly style="font-weight:700;font-size:16px"></div>
+      </div>
+    `,
+    footer:`<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+            <button class="btn btn-ghost" onclick="savePedido('BORRADOR')">Guardar borrador</button>
+            <button class="btn btn-primary" onclick="savePedido('CONFIRMADO')">Confirmar pedido</button>`,
+    size:"lg"
+  });
+  updatePedidoCalc();
+}
+
+function updatePedidoCalc(){
+  const sel = document.getElementById("np_prod");
+  const opt = sel.options[sel.selectedIndex];
+  const precio = parseFloat(opt.dataset.precio)||0;
+  const stock = parseInt(opt.dataset.stock)||0;
+  const cant = parseInt(document.getElementById("np_cant").value)||0;
+  document.getElementById("np_precio").value = precio.toFixed(2);
+  document.getElementById("np_disp").value = `${stock} unidades disponibles`;
+  document.getElementById("np_sub").value = fmtEur(cant*precio);
+}
+
+function savePedido(estado){
+  const cliente = document.getElementById("np_cliente").value;
+  const prod = document.getElementById("np_prod").value;
+  const cant = parseInt(document.getElementById("np_cant").value)||0;
+  const precio = parseFloat(document.getElementById("np_precio").value)||0;
+
+  if(cant<=0){ toast("Cantidad no válida","error","La cantidad debe ser mayor que 0."); return; }
+  if(precio<=0){ toast("Precio no válido","error","El precio debe ser mayor que 0."); return; }
+
+  const newId = "PED-"+state.counters.ped++;
+  const pedido = {
+    id:newId,cliente,fecha:nowDate(),importe:cant*precio,
+    estado:"BORRADOR",
+    lineas:[{prod,cant,precio}]
+  };
+  state.pedidos.push(pedido);
+  addTrace("Ventas","Pedido creado",newId,"—","BORRADOR",`${cant} uds · ${fmtEur(cant*precio)}`);
+  saveState();
+  closeModal();
+  toast("Pedido creado",`${newId} en estado borrador`,"success");
+
+  if(estado==="CONFIRMADO"){
+    setTimeout(()=>confirmarPedido(newId),300);
+  } else {
+    currentDetail = newId;
+    render();
+  }
+}
+
+function confirmarPedido(id){
+  const p = pedidoById(id);
+  if(!p) return;
+  if(p.estado!=="BORRADOR"){ toast("Estado no válido","error","Solo pueden confirmarse pedidos en borrador."); return; }
+
+  // validar stock
+  const linea = p.lineas[0];
+  const pr = productoById(linea.prod);
+  const disponible = pr.stock - pr.reservado;
+  if(linea.cant > disponible){
+    p.estado = "PENDIENTE_STOCK";
+    saveState();
+    addTrace("Ventas","Confirmación bloqueada",id,"BORRADOR","PENDIENTE_STOCK",`Faltan ${linea.cant-disponible} uds`);
+    saveState();
+    modal({
+      title:"⚠ Stock insuficiente",
+      body:`
+        <div class="alert alert-danger">
+          <div>
+            <b>No se puede confirmar el pedido.</b><br>
+            No hay stock suficiente para completar la operación.
+          </div>
+        </div>
+        <div class="detail-grid" style="margin-top:16px">
+          <div class="detail-item"><div class="lbl">Producto</div><div class="val">${pr.id} · ${pr.nombre}</div></div>
+          <div class="detail-item"><div class="lbl">Solicitado</div><div class="val"><b>${linea.cant}</b> unidades</div></div>
+          <div class="detail-item"><div class="lbl">Disponible</div><div class="val">${disponible} unidades</div></div>
+          <div class="detail-item"><div class="lbl">Faltante</div><div class="val" style="color:var(--danger);font-weight:700">${linea.cant-disponible} unidades</div></div>
+        </div>
+        <p style="margin-top:16px;font-size:13px;color:var(--text-soft)">El pedido queda en estado <b>Pendiente de stock</b>. Puedes consultar compras para reposición.</p>
+      `,
+      footer:`<button class="btn btn-secondary" onclick="closeModal()">Cerrar</button>
+              <button class="btn btn-primary" onclick="closeModal();go('compras')">Consultar compras</button>`
+    });
+    render();
+    return;
+  }
+
+  // reservar stock
+  pr.reservado += linea.cant;
+  p.estado = "CONFIRMADO";
+  saveState();
+  addTrace("Ventas","Pedido confirmado",id,"BORRADOR","CONFIRMADO",fmtEur(p.importe));
+  addTrace("Almacén","Stock reservado",id,"—","RESERVADO",`${linea.cant} uds ${pr.id}`);
+  saveState();
+  toast("Pedido confirmado",`${id} · Stock reservado: ${linea.cant} uds`,"success");
+  checkMissions();
+  render();
+}
+
+/* ---------- ALMACÉN ---------- */
+function renderAlmacen(){
+  const pendientes = state.pedidos.filter(p=>["CONFIRMADO","PREPARACION"].includes(p.estado));
+  const albaranes = state.albaranes.slice().reverse();
+
+  return `
+    <div class="page-head">
+      <div><h1>Almacén</h1><p>Preparación de pedidos y expediciones</p></div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi accent-orange"><div class="label">Pedidos pendientes</div><div class="value">${pendientes.length}</div><div class="sub">Por preparar</div></div>
+      <div class="kpi accent-blue"><div class="label">Albaranes emitidos</div><div class="value">${state.albaranes.length}</div><div class="sub">Histórico</div></div>
+      <div class="kpi accent-green"><div class="label">Expediciones hoy</div><div class="value">${state.albaranes.filter(a=>a.fecha===nowDate()&&a.estado==="EXPEDIDO").length}</div><div class="sub">Completadas</div></div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-head"><h3>Pedidos pendientes de preparación</h3></div>
+      <div class="card-body np">
+        ${pendientes.length?`<table>
+          <thead><tr><th>Pedido</th><th>Cliente</th><th>Producto</th><th>Cantidad</th><th>Stock</th><th>Reservado</th><th>Disponible</th><th></th></tr></thead>
+          <tbody>
+            ${pendientes.map(p=>{
+              const c = clienteById(p.cliente);
+              const l = p.lineas[0];
+              const pr = productoById(l.prod);
+              const disp = pr.stock - pr.reservado;
+              return `<tr>
+                <td class="mono"><b>${p.id}</b></td>
+                <td>${c?c.nombre:"—"}</td>
+                <td>${pr.id} · ${pr.nombre}</td>
+                <td>${l.cant}</td>
+                <td>${pr.stock}</td>
+                <td>${pr.reservado}</td>
+                <td>${disp}</td>
+                <td><button class="btn btn-primary btn-sm" onclick="prepararPedido('${p.id}')">Preparar pedido</button></td>
+              </tr>`;
+            }).join("")}
+          </tbody>
+        </table>`:`<div class="empty">No hay pedidos pendientes de preparación</div>`}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>Albaranes</h3></div>
+      <div class="card-body np">
+        <table>
+          <thead><tr><th>Albarán</th><th>Pedido</th><th>Fecha</th><th>Estado</th></tr></thead>
+          <tbody>
+            ${albaranes.map(a=>`
+              <tr>
+                <td class="mono"><b>${a.id}</b></td>
+                <td class="mono">${a.pedido}</td>
+                <td>${fmtDate(a.fecha)}</td>
+                <td>${badgeEstado(a.estado)}</td>
+              </tr>`).join("")}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function prepararPedido(id){
+  const p = pedidoById(id);
+  if(!p) return;
+  const c = clienteById(p.cliente);
+  const l = p.lineas[0];
+  const pr = productoById(l.prod);
+  const disp = pr.stock - pr.reservado;
+
+  if(p.estado!=="CONFIRMADO"){ toast("Estado no válido","error","El pedido debe estar confirmado."); return; }
+  if(l.cant > disp){ toast("Stock insuficiente","error",`Solo hay ${disp} unidades disponibles.`); return; }
+
+  modal({
+    title:"Preparar pedido "+p.id,
+    body:`
+      <div class="detail-grid">
+        <div class="detail-item"><div class="lbl">Cliente</div><div class="val">${c.nombre}</div></div>
+        <div class="detail-item"><div class="lbl">Producto</div><div class="val">${pr.id} · ${pr.nombre}</div></div>
+        <div class="detail-item"><div class="lbl">Solicitado</div><div class="val"><b>${l.cant}</b> unidades</div></div>
+        <div class="detail-item"><div class="lbl">Stock físico</div><div class="val">${pr.stock}</div></div>
+        <div class="detail-item"><div class="lbl">Reservado</div><div class="val">${pr.reservado}</div></div>
+        <div class="detail-item"><div class="lbl">Disponible tras reserva</div><div class="val"><b>${disp}</b></div></div>
+      </div>
+      <div class="alert alert-info" style="margin-top:16px">Al generar el albarán, el stock reservado se descontará del stock físico.</div>
+    `,
+    footer:`<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+            <button class="btn btn-primary" onclick="generarAlbaran('${id}')">Generar albarán</button>`
+  });
+}
+
+function generarAlbaran(id){
+  const p = pedidoById(id);
+  const l = p.lineas[0];
+  const pr = productoById(l.prod);
+
+  const newId = "ALB-"+state.counters.alb++;
+  state.albaranes.push({id:newId,pedido:id,fecha:nowDate(),estado:"PREPARADO"});
+  pr.stock -= l.cant;
+  pr.reservado -= l.cant;
+  p.estado = "PREPARACION";
+  saveState();
+  addTrace("Almacén","Albarán generado",newId,"—","PREPARADO",`${l.cant} uds ${pr.id}`);
+  saveState();
+  closeModal();
+  toast("Albarán generado",`${newId} · Pedido preparado`,"success");
+  checkMissions();
+  render();
+}
+
+function expedirAlbaran(id){
+  const a = state.albaranes.find(x=>x.id===id);
+  if(!a) return;
+  const p = pedidoById(a.pedido);
+  a.estado = "EXPEDIDO";
+  if(p) p.estado = "EXPEDIDO";
+  saveState();
+  addTrace("Almacén","Pedido expedido",a.pedido,"PREPARACION","EXPEDIDO",a.id);
+  saveState();
+  toast("Expedición confirmada",`${a.id} · Pedido enviado al cliente`,"success");
+  checkMissions();
+  render();
+}
+
+/* ---------- COMPRAS ---------- */
+function renderCompras(){
+  return `
+    <div class="page-head">
+      <div><h1>Compras a proveedores</h1><p>Órdenes de compra y reposición de stock</p></div>
+    </div>
+    <div class="alert alert-info">Módulo de compras simplificado. Desde aquí puedes gestionar la reposición de stock cuando un pedido queda pendiente por falta de unidades.</div>
+    <div class="card">
+      <div class="card-head"><h3>Órdenes de compra</h3></div>
+      <div class="card-body np">
+        <table>
+          <thead><tr><th>OC</th><th>Proveedor</th><th>Producto</th><th>Cantidad</th><th>Estado</th></tr></thead>
+          <tbody>
+            ${state.compras.map(c=>{
+              const pr = productoById(c.producto);
+              return `<tr>
+                <td class="mono">${c.id}</td>
+                <td>${c.proveedor}</td>
+                <td>${pr?pr.nombre:c.producto}</td>
+                <td>${c.cantidad}</td>
+                <td>${badgeEstado(c.estado==="Confirmado"?"CONFIRMADO":c.estado==="Pendiente"?"BORRADOR":"PREPARACION")}</td>
+              </tr>`;
+            }).join("")}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+/* ---------- FACTURACIÓN ---------- */
+function renderFacturacion(){
+  return `
+    <div class="page-head">
+      <div><h1>Facturación</h1><p>Emisión de facturas a partir de albaranes</p></div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi accent-orange"><div class="label">Facturas pendientes</div><div class="value">${state.facturas.filter(f=>f.estado==="PENDIENTE").length}</div></div>
+      <div class="kpi accent-green"><div class="label">Facturas cobradas</div><div class="value">${state.facturas.filter(f=>f.estado==="COBRADA").length}</div></div>
+      <div class="kpi accent-blue"><div class="label">Base imponible mes</div><div class="value">${fmtEur(state.facturas.reduce((s,f)=>s+f.base,0))}</div></div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-head"><h3>Pedidos listos para facturar</h3></div>
+      <div class="card-body np">
+        ${(() => {
+          const listos = state.pedidos.filter(p=>p.estado==="EXPEDIDO" && !facturaByPedido(p.id));
+          if(!listos.length) return `<div class="empty">No hay pedidos pendientes de facturar</div>`;
+          return `<table>
+            <thead><tr><th>Pedido</th><th>Albarán</th><th>Cliente</th><th>Importe</th><th></th></tr></thead>
+            <tbody>
+              ${listos.map(p=>{
+                const c = clienteById(p.cliente);
+                const a = albaranByPedido(p.id);
+                return `<tr>
+                  <td class="mono">${p.id}</td>
+                  <td class="mono">${a?a.id:"—"}</td>
+                  <td>${c?c.nombre:"—"}</td>
+                  <td>${fmtEur(p.importe)}</td>
+                  <td><button class="btn btn-primary btn-sm" onclick="openFacturar('${p.id}')">Generar factura</button></td>
+                </tr>`;
+              }).join("")}
+            </tbody>
+          </table>`;
+        })()}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>Facturas emitidas</h3></div>
+      <div class="card-body np">
+        <table>
+          <thead><tr><th>Factura</th><th>Pedido</th><th>Cliente</th><th>Fecha</th><th>Total</th><th>Estado</th></tr></thead>
+          <tbody>
+            ${state.facturas.slice().reverse().map(f=>{
+              const c = clienteById(f.cliente);
+              return `<tr>
+                <td class="mono"><b>${f.id}</b></td>
+                <td class="mono">${f.pedido}</td>
+                <td>${c?c.nombre:"—"}</td>
+                <td>${fmtDate(f.fecha)}</td>
+                <td>${fmtEur(f.total)}</td>
+                <td>${badgeEstado(f.estado)}</td>
+              </tr>`;
+            }).join("")}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function openFacturar(id){
+  const p = pedidoById(id);
+  if(!p) return;
+  const c = clienteById(p.cliente);
+  const a = albaranByPedido(id);
+
+  // validación de secuencia
+  if(!a || a.estado!=="EXPEDIDO"){
+    modal({
+      title:"⛔ Operación bloqueada",
+      body:`
+        <div class="alert alert-danger">
+          <div>
+            <b>No puede facturarse esta operación.</b><br>
+            El pedido todavía no dispone de una entrega confirmada.
+          </div>
+        </div>
+        <p style="font-size:13px;color:var(--text-soft)">En un ERP, la factura se emite solo cuando existe un albarán de entrega confirmado. Esto garantiza que se factura lo realmente enviado.</p>
+      `,
+      footer:`<button class="btn btn-primary" onclick="closeModal()">Entendido</button>`
+    });
+    addTrace("Facturación","Validación bloqueada",id,"—","BLOQUEADO","Sin albarán expedido");
+    saveState();
+    return;
+  }
+
+  const base = p.importe;
+  const iva = base*0.21;
+  const total = base+iva;
+
+  modal({
+    title:"Generar factura · "+p.id,
+    body:`
+      <div class="detail-grid">
+        <div class="detail-item"><div class="lbl">Pedido</div><div class="val mono">${p.id}</div></div>
+        <div class="detail-item"><div class="lbl">Albarán</div><div class="val mono">${a.id}</div></div>
+        <div class="detail-item"><div class="lbl">Cliente</div><div class="val">${c.nombre}</div></div>
+        <div class="detail-item"><div class="lbl">CIF</div><div class="val mono">${c.cif}</div></div>
+      </div>
+      <div style="margin-top:20px;padding:16px;background:var(--surface-2);border-radius:6px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span>Base imponible</span><b>${fmtEur(base)}</b></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span>IVA 21%</span><b>${fmtEur(iva)}</b></div>
+        <div style="display:flex;justify-content:space-between;padding-top:10px;border-top:1px solid var(--border);font-size:16px"><span><b>TOTAL</b></span><b style="color:var(--primary)">${fmtEur(total)}</b></div>
+      </div>
+    `,
+    footer:`<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+            <button class="btn btn-primary" onclick="confirmarFactura('${id}')">Generar factura</button>`
+  });
+}
+
+function confirmarFactura(id){
+  const p = pedidoById(id);
+  const c = clienteById(p.cliente);
+  const base = p.importe;
+  const iva = base*0.21;
+  const total = base+iva;
+  const newId = "FAC-"+state.counters.fac++;
+  state.facturas.push({id:newId,pedido:id,cliente:p.cliente,fecha:nowDate(),base,iva,total,estado:"PENDIENTE"});
+  p.estado = "FACTURADO";
+  saveState();
+  addTrace("Facturación","Factura generada",newId,"—","PENDIENTE",`${fmtEur(total)} · ${p.id}`);
+  saveState();
+  closeModal();
+  toast("Factura creada",`${newId} · ${fmtEur(total)}`,"success");
+  checkMissions();
+  render();
+}
+
+/* ---------- TESORERÍA ---------- */
+function renderTesoreria(){
+  const pend = state.facturas.filter(f=>["PENDIENTE","COBRO_PARCIAL","COBRO PARCIAL"].includes(f.estado));
+  const cobradas = state.facturas.filter(f=>f.estado==="COBRADA");
+
+  return `
+    <div class="page-head">
+      <div><h1>Tesorería</h1><p>Control de cobros y pagos</p></div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi accent-orange"><div class="label">Cobros pendientes</div><div class="value">${pend.length}</div></div>
+      <div class="kpi accent-green"><div class="label">Cobrado del mes</div><div class="value">${fmtEur(cobradas.reduce((s,f)=>s+f.total,0))}</div></div>
+      <div class="kpi accent-red"><div class="label">Importe pendiente</div><div class="value">${fmtEur(pend.reduce((s,f)=>s+f.total,0))}</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>Facturas pendientes de cobro</h3></div>
+      <div class="card-body np">
+        <table>
+          <thead><tr><th>Factura</th><th>Cliente</th><th>Total</th><th>Vencimiento</th><th>Estado</th><th></th></tr></thead>
+          <tbody>
+            ${pend.map(f=>{
+              const c = clienteById(f.cliente);
+              const cli = clienteById(f.cliente);
+              const venc = new Date(f.fecha); venc.setDate(venc.getDate()+(cli?parseInt(cli.pago)||30:30));
+              return `<tr>
+                <td class="mono"><b>${f.id}</b></td>
+                <td>${c?c.nombre:"—"}</td>
+                <td>${fmtEur(f.total)}</td>
+                <td>${fmtDate(venc.toISOString().slice(0,10))}</td>
+                <td>${badgeEstado(f.estado)}</td>
+                <td><button class="btn btn-primary btn-sm" onclick="openCobro('${f.id}')">Registrar cobro</button></td>
+              </tr>`;
+            }).join("")}
+            ${pend.length===0?`<tr><td colspan="6" class="empty">No hay facturas pendientes</td></tr>`:""}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function openCobro(id){
+  const f = state.facturas.find(x=>x.id===id);
+  if(!f) return;
+  const c = clienteById(f.cliente);
+  modal({
+    title:"Registrar cobro · "+f.id,
+    body:`
+      <div class="detail-grid">
+        <div class="detail-item"><div class="lbl">Factura</div><div class="val mono">${f.id}</div></div>
+        <div class="detail-item"><div class="lbl">Cliente</div><div class="val">${c.nombre}</div></div>
+        <div class="detail-item"><div class="lbl">Importe factura</div><div class="val"><b>${fmtEur(f.total)}</b></div></div>
+        <div class="detail-item"><div class="lbl">Estado actual</div><div class="val">${badgeEstado(f.estado)}</div></div>
+      </div>
+      <div class="form-grid" style="margin-top:20px">
+        <div class="form-field"><label>Importe recibido</label><input type="number" id="cob_imp" step="0.01" value="${f.total.toFixed(2)}"></div>
+        <div class="form-field"><label>Fecha</label><input type="date" id="cob_fec" value="${nowDate()}"></div>
+        <div class="form-field" style="grid-column:span 2"><label>Método de pago</label>
+          <select id="cob_met"><option>Transferencia</option><option>Tarjeta</option><option>Domiciliacion</option><option>Otro</option></select>
+        </div>
+      </div>
+    `,
+    footer:`<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+            <button class="btn btn-primary" onclick="confirmarCobro('${id}')">Registrar cobro</button>`
+  });
+}
+
+function confirmarCobro(id){
+  const f = state.facturas.find(x=>x.id===id);
+  const imp = parseFloat(document.getElementById("cob_imp").value)||0;
+  const fec = document.getElementById("cob_fec").value;
+  const met = document.getElementById("cob_met").value;
+
+  if(imp<=0){ toast("Importe no válido","error","El importe debe ser mayor que 0."); return; }
+  if(imp>f.total){ toast("Importe superior","error","No se puede cobrar más que el total de la factura."); return; }
+
+  if(imp===f.total){
+    f.estado = "COBRADA";
+    const p = pedidoById(f.pedido);
+    if(p) p.estado = "CERRADO";
+    addTrace("Tesorería","Cobro registrado",f.id,"PENDIENTE","COBRADA",fmtEur(imp)+" · "+met);
+    addTrace("Operación","Operación cerrada",f.pedido,"FACTURADO","CERRADO","Ciclo completo");
+    toast("Cobro registrado","Operación cerrada correctamente","success");
+  } else {
+    f.estado = "COBRO_PARCIAL";
+    addTrace("Tesorería","Cobro parcial",f.id,"PENDIENTE","COBRO PARCIAL",`${fmtEur(imp)} de ${fmtEur(f.total)}`);
+    toast("Cobro parcial registrado",`Pendiente: ${fmtEur(f.total-imp)}`,"warning");
+  }
+  saveState();
+  closeModal();
+  checkMissions();
+  render();
+}
+
+/* ---------- INCIDENCIAS ---------- */
+function renderIncidencias(){
+  return `
+    <div class="page-head">
+      <div><h1>Incidencias</h1><p>Gestión de incidencias y reclamaciones</p></div>
+      <button class="btn btn-primary" onclick="openNewIncidencia()">+ Nueva incidencia</button>
+    </div>
+    <div class="card">
+      <div class="card-body np">
+        <table>
+          <thead><tr><th>Código</th><th>Cliente</th><th>Pedido</th><th>Categoría</th><th>Prioridad</th><th>Estado</th><th>Responsable</th></tr></thead>
+          <tbody>
+            ${state.incidencias.slice().reverse().map(i=>{
+              const c = clienteById(i.cliente);
+              return `<tr onclick="openIncidencia('${i.id}')">
+                <td class="mono"><b>${i.id}</b></td>
+                <td>${c?c.nombre:"—"}</td>
+                <td class="mono">${i.pedido||"—"}</td>
+                <td>${i.categoria}</td>
+                <td><span class="badge ${i.prioridad==="Crítica"||i.prioridad==="Alta"?"b-red":i.prioridad==="Media"?"b-yellow":"b-gray"}">${i.prioridad}</span></td>
+                <td>${badgeEstado(i.estado)}</td>
+                <td>${i.responsable||"—"}</td>
+              </tr>`;
+            }).join("")}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function openIncidencia(id){
+  const i = state.incidencias.find(x=>x.id===id);
+  if(!i) return;
+  const c = clienteById(i.cliente);
+  const traces = state.trazabilidad.filter(t=>t.documento===id);
+
+  modal({
+    title:i.id+" · "+i.categoria,
+    size:"lg",
+    body:`
+      <div class="detail-grid">
+        <div class="detail-item"><div class="lbl">Cliente</div><div class="val">${c?c.nombre:"—"}</div></div>
+        <div class="detail-item"><div class="lbl">Pedido</div><div class="val mono">${i.pedido||"—"}</div></div>
+        <div class="detail-item"><div class="lbl">Prioridad</div><div class="val">${i.prioridad}</div></div>
+        <div class="detail-item"><div class="lbl">Estado</div><div class="val">${badgeEstado(i.estado)}</div></div>
+        <div class="detail-item"><div class="lbl">Responsable</div><div class="val">${i.responsable||"—"}</div></div>
+        <div class="detail-item"><div class="lbl">Creada</div><div class="val">${i.creada}</div></div>
+      </div>
+      <div style="margin-top:16px;padding:12px;background:var(--surface-2);border-radius:6px">
+        <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px">Descripción</div>
+        <div style="font-size:13px">${i.descripcion}</div>
+      </div>
+      ${i.solucion?`<div style="margin-top:12px;padding:12px;background:var(--success-soft);border-radius:6px">
+        <div style="font-size:11px;color:var(--success);text-transform:uppercase;margin-bottom:4px">Solución</div>
+        <div style="font-size:13px;color:var(--success)">${i.solucion}</div>
+      </div>`:""}
+
+      <div style="margin-top:20px">
+        <h4 style="font-size:13px;margin-bottom:10px">Gestionar incidencia</h4>
+        <div class="form-grid">
+          <div class="form-field"><label>Asignar responsable</label>
+            <select id="inc_resp">
+              <option value="">— Sin asignar —</option>
+              <option ${i.responsable==="Ventas"?"selected":""}>Ventas</option>
+              <option ${i.responsable==="Almacén"?"selected":""}>Almacén</option>
+              <option ${i.responsable==="Logística"?"selected":""}>Logística</option>
+              <option ${i.responsable==="Operaciones"?"selected":""}>Operaciones</option>
+              <option ${i.responsable==="Administración"?"selected":""}>Administración</option>
+            </select>
+          </div>
+          <div class="form-field"><label>Cambiar estado</label>
+            <select id="inc_est">
+              <option ${i.estado==="ABIERTA"?"selected":""}>ABIERTA</option>
+              <option ${i.estado==="EN_GESTION"?"selected":""}>EN_GESTION</option>
+              <option ${i.estado==="RESUELTA"?"selected":""}>RESUELTA</option>
+              <option ${i.estado==="CERRADA"?"selected":""}>CERRADA</option>
+            </select>
+          </div>
+          <div class="form-field" style="grid-column:span 2"><label>Solución / notas</label>
+            <textarea id="inc_sol" rows="3" placeholder="Describe la solución o las acciones tomadas...">${i.solucion||""}</textarea>
+          </div>
+        </div>
+      </div>
+
+      ${traces.length?`<div style="margin-top:20px">
+        <h4 style="font-size:13px;margin-bottom:10px">Historial</h4>
+        <div class="timeline">
+          ${traces.map(t=>`<div class="tl-item">
+            <div class="tl-dot"></div>
+            <div class="tl-time">${t.hora} · ${t.modulo}</div>
+            <div class="tl-title">${t.accion}</div>
+            <div class="tl-meta">${t.extra||""}</div>
+          </div>`).join("")}
+        </div>
+      </div>`:""}
+    `,
+    footer:`<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+            <button class="btn btn-primary" onclick="updateIncidencia('${id}')">Guardar cambios</button>`
+  });
+}
+
+function updateIncidencia(id){
+  const i = state.incidencias.find(x=>x.id===id);
+  const resp = document.getElementById("inc_resp").value;
+  const est = document.getElementById("inc_est").value;
+  const sol = document.getElementById("inc_sol").value.trim();
+  const estAnt = i.estado;
+
+  if(resp && resp!==i.responsable){
+    i.responsable = resp;
+    addTrace("Incidencias","Incidencia asignada",id,i.estado,i.estado,resp);
+  }
+  if(est!==i.estado){
+    i.estado = est;
+    addTrace("Incidencias","Estado actualizado",id,estAnt,est,"");
+  }
+  if(sol!==i.solucion){
+    i.solucion = sol;
+    addTrace("Incidencias","Solución documentada",id,i.estado,i.estado,sol.slice(0,50));
+  }
+  saveState();
+  closeModal();
+  toast("Incidencia actualizada",`${id} · ${est.replace("_"," ")}`,"success");
+  checkMissions();
+  render();
+}
+
+function openNewIncidencia(){
+  const optsCli = state.clientes.map(c=>`<option value="${c.id}">${c.nombre}</option>`).join("");
+  const optsPed = state.pedidos.map(p=>`<option value="${p.id}">${p.id} · ${clienteById(p.cliente)?.nombre||""}</option>`).join("");
+
+  modal({
+    title:"Nueva incidencia",
+    body:`
+      <div class="form-grid">
+        <div class="form-field"><label>Cliente</label><select id="ni_cli">${optsCli}</select></div>
+        <div class="form-field"><label>Pedido relacionado</label><select id="ni_ped"><option value="">— Ninguno —</option>${optsPed}</select></div>
+        <div class="form-field"><label>Categoría</label>
+          <select id="ni_cat"><option>Entrega</option><option>Calidad</option><option>Facturación</option><option>Stock</option><option>Administración</option><option>Otros</option></select>
+        </div>
+        <div class="form-field"><label>Prioridad</label>
+          <select id="ni_pri"><option>Baja</option><option>Media</option><option selected>Alta</option><option>Crítica</option></select>
+        </div>
+        <div class="form-field" style="grid-column:span 2"><label>Descripción</label>
+          <textarea id="ni_desc" rows="3" placeholder="Describe la incidencia..."></textarea>
+        </div>
+      </div>
+    `,
+    footer:`<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+            <button class="btn btn-primary" onclick="saveIncidencia()">Crear incidencia</button>`
+  });
+}
+
+function saveIncidencia(){
+  const cli = document.getElementById("ni_cli").value;
+  const ped = document.getElementById("ni_ped").value||null;
+  const cat = document.getElementById("ni_cat").value;
+  const pri = document.getElementById("ni_pri").value;
+  const desc = document.getElementById("ni_desc").value.trim();
+
+  if(!desc){ toast("Descripción obligatoria","error","Indica una descripción de la incidencia."); return; }
+
+  const newId = "INC-"+String(state.counters.inc++).padStart(4,"0");
+  state.incidencias.push({id:newId,cliente:cli,pedido:ped,categoria:cat,prioridad:pri,descripcion:desc,estado:"ABIERTA",responsable:"",solucion:"",creada:`${nowDate()} ${nowTime()}`});
+  addTrace("Incidencias","Incidencia abierta",newId,"—","ABIERTA",cat+" · "+pri);
+  saveState();
+  closeModal();
+  toast("Incidencia creada",`${newId} · ${cat}`,"success");
+  checkMissions();
+  render();
+}
+
+/* ---------- TRAZABILIDAD ---------- */
+function renderTrazabilidad(){
+  return `
+    <div class="page-head">
+      <div><h1>Trazabilidad</h1><p>Reconstrucción completa del recorrido de cada operación</p></div>
+    </div>
+
+    <div class="search-bar">
+      <input id="traza_search" placeholder="Buscar documento, cliente o referencia (ej. PED-1047, CLI-001, Mediterráneo)..." oninput="renderTraceList()">
+    </div>
+
+    <div id="trace_result"></div>
+  `;
+}
+
+function renderTraceList(){
+  const q = (document.getElementById("traza_search")?.value||"").trim().toLowerCase();
+  const cont = document.getElementById("trace_result");
+  if(!cont) return;
+
+  if(!q){
+    // mostrar timeline general
+    cont.innerHTML = `
+      <div class="card">
+        <div class="card-head"><h3>Timeline general</h3><span class="badge b-blue">${state.trazabilidad.length} eventos</span></div>
+        <div class="card-body">
+          <div class="timeline">
+            ${state.trazabilidad.slice(0,30).map(t=>renderTraceItem(t)).join("")}
+          </div>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  // buscar trazas que coincidan
+  const matches = state.trazabilidad.filter(t=>{
+    const txt = (t.documento+" "+t.accion+" "+t.modulo+" "+t.extra+" "+t.estadoAnt+" "+t.estadoNew).toLowerCase();
+    if(txt.includes(q)) return true;
+    // buscar cliente
+    const p = pedidoById(t.documento);
+    if(p){
+      const c = clienteById(p.cliente);
+      if(c && c.nombre.toLowerCase().includes(q)) return true;
+    }
+    return false;
+  });
+
+  if(!matches.length){
+    cont.innerHTML = `<div class="card"><div class="card-body empty">Sin resultados para "${q}"</div></div>`;
+    return;
+  }
+
+  cont.innerHTML = `
+    <div class="card">
+      <div class="card-head"><h3>Resultados para "${q}"</h3><span class="badge b-blue">${matches.length} eventos</span></div>
+      <div class="card-body">
+        <div class="timeline">
+          ${matches.map(t=>renderTraceItem(t)).join("")}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderTraceItem(t){
+  const dotClass = t.estadoNew==="COBRADA"||t.estadoNew==="CERRADO"?"green":
+                   t.estadoNew.includes("BLOQUE")||t.estadoNew==="PENDIENTE_STOCK"?"red":
+                   t.estadoNew==="PENDIENTE"||t.estadoNew==="PENDIENTE DE COBRO"?"orange":"";
+  return `<div class="tl-item">
+    <div class="tl-dot ${dotClass}"></div>
+    <div class="tl-time">${t.fecha} ${t.hora} · ${t.modulo}</div>
+    <div class="tl-title">${t.accion}</div>
+    <div class="tl-meta">
+      <span class="mono">${t.documento}</span>
+      <span>· ${t.usuario}</span>
+      ${t.estadoAnt?`<span>· ${t.estadoAnt} → ${t.estadoNew}</span>`:""}
+      ${t.extra?`<span>· ${t.extra}</span>`:""}
+    </div>
+  </div>`;
+}
+
+/* ---------- REPORTING ---------- */
+function renderReporting(){
+  // ventas por "mes" (simplificado: total por pedido)
+  const porEstado = {};
+  state.pedidos.forEach(p=>{porEstado[p.estado]=(porEstado[p.estado]||0)+1});
+  const porCat = {};
+  state.incidencias.forEach(i=>{porCat[i.categoria]=(porCat[i.categoria]||0)+1});
+  const factPend = state.facturas.filter(f=>["PENDIENTE","COBRO_PARCIAL","COBRO PARCIAL"].includes(f.estado));
+
+  const maxPed = Math.max(...Object.values(porEstado),1);
+  const maxCat = Math.max(...Object.values(porCat),1);
+
+  return `
+    <div class="page-head">
+      <div><h1>Reporting</h1><p>Indicadores operativos</p></div>
+    </div>
+
+    <div class="alert alert-info">Estos indicadores proceden de los registros realizados en los diferentes módulos del ERP. Al operar en módulos como Ventas, Almacén o Facturación, los datos se actualizan automáticamente.</div>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="card-head"><h3>Pedidos por estado</h3></div>
+        <div class="card-body">
+          <div class="chart-bars">
+            ${Object.entries(porEstado).map(([k,v])=>`
+              <div class="bar-col">
+                <div class="bar-value">${v}</div>
+                <div class="bar" style="height:${(v/maxPed)*100}%"></div>
+                <div class="bar-label">${k.replace("_"," ").slice(0,10)}</div>
+              </div>`).join("")}
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h3>Incidencias por categoría</h3></div>
+        <div class="card-body">
+          <div class="chart-bars">
+            ${Object.entries(porCat).map(([k,v])=>`
+              <div class="bar-col">
+                <div class="bar-value">${v}</div>
+                <div class="bar" style="height:${(v/maxCat)*100}%;background:var(--warning)"></div>
+                <div class="bar-label">${k}</div>
+              </div>`).join("")}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px">
+      <div class="card-head"><h3>Facturas pendientes de cobro</h3></div>
+      <div class="card-body np">
+        <table>
+          <thead><tr><th>Factura</th><th>Cliente</th><th>Total</th><th>Estado</th></tr></thead>
+          <tbody>
+            ${factPend.map(f=>{
+              const c = clienteById(f.cliente);
+              return `<tr>
+                <td class="mono">${f.id}</td>
+                <td>${c?c.nombre:"—"}</td>
+                <td>${fmtEur(f.total)}</td>
+                <td>${badgeEstado(f.estado)}</td>
+              </tr>`;
+            }).join("")}
+            ${factPend.length===0?`<tr><td colspan="4" class="empty">No hay facturas pendientes</td></tr>`:""}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+/* ---------- MODO FORMACIÓN ---------- */
+function renderFormacion(){
+  const done = Object.values(state.misiones).filter(x=>x).length;
+  const total = 4;
+  const pct = (done/total)*100;
+
+  return `
+    <div class="page-head">
+      <div><h1>Modo formación</h1><p>Cuatro misiones para dominar la lógica ERP</p></div>
+      <button class="btn btn-danger" onclick="confirmReset()">↺ Reiniciar entorno</button>
+    </div>
+
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-body">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <b>Progreso global</b>
+          <span>${done} / ${total} misiones</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+      </div>
+    </div>
+
+    ${done===total?renderFinishScreen():`
+      ${renderMision1()}
+      ${renderMision2()}
+      ${renderMision3()}
+      ${renderMision4()}
+    `}
+  `;
+}
+
+function renderMision1(){
+  const done = state.misiones[1];
+  const checks = [
+    {k:"cliente",lbl:"Cliente localizado",ok:!!state.trazabilidad.find(t=>t.documento==="PED-1047")||state.pedidos.some(p=>p.cliente==="CLI-001"&&p.estado!=="BORRADOR")},
+    {k:"creado",lbl:"Pedido creado",ok:state.pedidos.some(p=>p.id==="PED-1047")},
+    {k:"confirmado",lbl:"Pedido confirmado",ok:pedidoById("PED-1047")&&["CONFIRMADO","PREPARACION","EXPEDIDO","FACTURADO","CERRADO"].includes(pedidoById("PED-1047").estado)},
+    {k:"stock",lbl:"Stock reservado",ok:state.trazabilidad.some(t=>t.documento==="PED-1047"&&t.accion==="Stock reservado")},
+    {k:"albaran",lbl:"Albarán generado",ok:!!albaranByPedido("PED-1047")},
+    {k:"expedido",lbl:"Pedido expedido",ok:pedidoById("PED-1047")&&["EXPEDIDO","FACTURADO","CERRADO"].includes(pedidoById("PED-1047").estado)},
+    {k:"factura",lbl:"Factura emitida",ok:!!facturaByPedido("PED-1047")},
+    {k:"cobro",lbl:"Cobro registrado",ok:facturaByPedido("PED-1047")&&facturaByPedido("PED-1047").estado==="COBRADA"}
+  ];
+  const okCount = checks.filter(c=>c.ok).length;
+
+  return `
+    <div class="mission-card ${done?"done":""}">
+      <div class="mission-head">
+        <div>
+          <h3>MISIÓN 01 · Completa una venta</h3>
+          <p>Recorre el ciclo completo: Cliente → Pedido → Stock → Albarán → Factura → Cobro</p>
+        </div>
+        ${done?`<span class="badge b-green">✓ COMPLETADA</span>`:`<span class="badge b-blue">${okCount}/8</span>`}
+      </div>
+      <div class="flow">
+        <div class="flow-step ${checks[0].ok?"done":""}">Cliente</div><div class="flow-arrow">→</div>
+        <div class="flow-step ${checks[2].ok?"done":""}">Pedido</div><div class="flow-arrow">→</div>
+        <div class="flow-step ${checks[3].ok?"done":""}">Stock</div><div class="flow-arrow">→</div>
+        <div class="flow-step ${checks[4].ok?"done":""}">Albarán</div><div class="flow-arrow">→</div>
+        <div class="flow-step ${checks[6].ok?"done":""}">Factura</div><div class="flow-arrow">→</div>
+        <div class="flow-step ${checks[7].ok?"done":""}">Cobro</div>
+      </div>
+      <div class="mission-check">
+        ${checks.map(c=>`<div class="check-item ${c.ok?"done":""}"><div class="check-box">${c.ok?"✓":""}</div>${c.lbl}</div>`).join("")}
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${(okCount/8)*100}%"></div></div>
+    </div>
+  `;
+}
+
+function renderMision2(){
+  const done = state.misiones[2];
+  const fac = state.facturas.find(f=>f.id==="FAC-1052");
+  const ped = pedidoById("PED-1052");
+  // la misión se completa cuando la factura coincide con el pedido (importe base = importe pedido)
+  const ok = fac && ped && Math.abs(fac.base-ped.importe)<0.01;
+
+  return `
+    <div class="mission-card ${done?"done":""}">
+      <div class="mission-head">
+        <div>
+          <h3>MISIÓN 02 · Encuentra el error</h3>
+          <p>"El cliente afirma que la factura no coincide con su pedido." Investiga PED-1052 y FAC-1052.</p>
+        </div>
+        ${done?`<span class="badge b-green">✓ COMPLETADA</span>`:`<span class="badge b-orange">En curso</span>`}
+      </div>
+      <div class="alert alert-warning">
+        <div>Pista: utiliza <b>Trazabilidad</b> y compara los documentos vinculados. Cuando encuentres la discrepancia, corrige la factura desde el módulo de Facturación.</div>
+      </div>
+      <div class="mission-check">
+        <div class="check-item ${ok?"done":""}"><div class="check-box">${ok?"✓":""}</div>Discrepancia identificada</div>
+        <div class="check-item ${ok?"done":""}"><div class="check-box">${ok?"✓":""}</div>Factura corregida</div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${ok?100:0}%"></div></div>
+    </div>
+  `;
+}
+
+function renderMision3(){
+  const done = state.misiones[3];
+  // buscar incidencia asociada a PED-1047 que esté cerrada
+  const inc = state.incidencias.find(i=>i.pedido==="PED-1047");
+  const ok = inc && inc.estado==="CERRADA" && inc.responsable && inc.solucion;
+
+  return `
+    <div class="mission-card ${done?"done":""}">
+      <div class="mission-head">
+        <div>
+          <h3>MISIÓN 03 · Resuelve una incidencia</h3>
+          <p>"Distribuciones Mediterráneo informa de que faltan cinco unidades en la entrega."</p>
+        </div>
+        ${done?`<span class="badge b-green">✓ COMPLETADA</span>`:`<span class="badge b-orange">En curso</span>`}
+      </div>
+      <div class="mission-check">
+        <div class="check-item ${inc?"done":""}"><div class="check-box">${inc?"✓":""}</div>Incidencia creada</div>
+        <div class="check-item ${inc&&inc.pedido==="PED-1047"?"done":""}"><div class="check-box">${inc&&inc.pedido==="PED-1047"?"✓":""}</div>Asociada a PED-1047</div>
+        <div class="check-item ${inc&&inc.responsable?"done":""}"><div class="check-box">${inc&&inc.responsable?"✓":""}</div>Responsable asignado</div>
+        <div class="check-item ${inc&&inc.solucion?"done":""}"><div class="check-box">${inc&&inc.solucion?"✓":""}</div>Solución documentada</div>
+        <div class="check-item ${ok?"done":""}"><div class="check-box">${ok?"✓":""}</div>Incidencia cerrada</div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${ok?100:inc?40:10}%"></div></div>
+    </div>
+  `;
+}
+
+function renderMision4(){
+  const done = state.misiones[4];
+  // se marca como completada manualmente por el usuario tras consultar
+  return `
+    <div class="mission-card ${done?"done":""}">
+      <div class="mission-head">
+        <div>
+          <h3>MISIÓN 04 · Auditoría rápida</h3>
+          <p>"Dirección quiere saber qué ocurrió con PED-1047." Responde usando Trazabilidad.</p>
+        </div>
+        ${done?`<span class="badge b-green">✓ COMPLETADA</span>`:`<span class="badge b-blue">Pendiente</span>`}
+      </div>
+      <div class="alert alert-info">
+        <div>Busca <b>PED-1047</b> en Trazabilidad y localiza: quién creó el pedido, cuándo, qué albarán tiene, qué factura corresponde, importe, si está cobrado, si tuvo incidencias y estado final.</div>
+      </div>
+      <div class="mission-check">
+        <div class="check-item"><div class="check-box">?</div>¿Quién creó el pedido?</div>
+        <div class="check-item"><div class="check-box">?</div>¿Cuándo se creó?</div>
+        <div class="check-item"><div class="check-box">?</div>¿Qué albarán tiene?</div>
+        <div class="check-item"><div class="check-box">?</div>¿Qué factura corresponde?</div>
+        <div class="check-item"><div class="check-box">?</div>¿Cuál es el importe?</div>
+        <div class="check-item"><div class="check-box">?</div>¿Está cobrado?</div>
+        <div class="check-item"><div class="check-box">?</div>¿Tuvo incidencias?</div>
+        <div class="check-item"><div class="check-box">?</div>¿Estado final?</div>
+      </div>
+      ${!done?`<div style="margin-top:14px;text-align:right"><button class="btn btn-primary" onclick="completeMision4()">He completado la auditoría</button></div>`:""}
+    </div>
+  `;
+}
+
+function completeMision4(){
+  state.misiones[4] = true;
+  saveState();
+  toast("Misión 4 completada","Auditoría realizada correctamente","success");
+  render();
+}
+
+function renderFinishScreen(){
+  return `
+    <div class="finish-hero">
+      <h1>★ ERP LAB COMPLETADO</h1>
+      <p>Has dominado la lógica de flujo, trazabilidad y control de un ERP</p>
+    </div>
+
+    <div class="completion-grid">
+      <div class="comp-item">✓ Pedido</div>
+      <div class="comp-item">✓ Almacén</div>
+      <div class="comp-item">✓ Facturación</div>
+      <div class="comp-item">✓ Tesorería</div>
+      <div class="comp-item">✓ Incidencia</div>
+      <div class="comp-item">✓ Trazabilidad</div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>Ahora reconstruye el proceso que acabas de ejecutar</h3></div>
+      <div class="card-body">
+        <div class="flow">
+          <div class="flow-step done">EVENTO<br><small>origen</small></div><div class="flow-arrow">↓</div>
+          <div class="flow-step done">DOCUMENTO<br><small>prueba</small></div><div class="flow-arrow">↓</div>
+          <div class="flow-step done">RESPONSABLE<br><small>quién</small></div><div class="flow-arrow">↓</div>
+          <div class="flow-step done">MÓDULO<br><small>dónde</small></div><div class="flow-arrow">↓</div>
+          <div class="flow-step done">ESTADO<br><small>control</small></div><div class="flow-arrow">↓</div>
+          <div class="flow-step done">EVIDENCIA<br><small>traza</small></div>
+        </div>
+        <div style="text-align:center;margin-top:20px">
+          <button class="btn btn-primary btn-lg" onclick="go('trazabilidad')">Ver mi proceso</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function checkMissions(){
+  // Misión 1
+  const p = pedidoById("PED-1047");
+  if(p && p.estado==="CERRADO"){
+    if(!state.misiones[1]){ state.misiones[1]=true; toast("★ Misión 1 completada","Has cerrado el ciclo de venta","success"); }
+  }
+  // Misión 2
+  const fac = state.facturas.find(f=>f.id==="FAC-1052");
+  const ped = pedidoById("PED-1052");
+  if(fac && ped && Math.abs(fac.base-ped.importe)<0.01){
+    if(!state.misiones[2]){ state.misiones[2]=true; toast("★ Misión 2 completada","Has corregido la discrepancia","success"); }
+  }
+  // Misión 3
+  const inc = state.incidencias.find(i=>i.pedido==="PED-1047"&&i.estado==="CERRADA"&&i.responsable&&i.solucion);
+  if(inc){
+    if(!state.misiones[3]){ state.misiones[3]=true; toast("★ Misión 3 completada","Has resuelto la incidencia","success"); }
+  }
+  saveState();
+  if(currentView==="formacion") render();
+}
+
+function confirmReset(){
+  modal({
+    title:"Reiniciar entorno",
+    body:`
+      <div class="alert alert-warning">
+        <div><b>Esta acción restaurará todos los datos de práctica al estado inicial.</b><br>Se perderán todas las operaciones realizadas y el progreso de las misiones.</div>
+      </div>
+      <p style="font-size:13px;color:var(--text-soft)">¿Deseas continuar?</p>
+    `,
+    footer:`<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+            <button class="btn btn-danger" onclick="doReset()">Reiniciar</button>`
+  });
+}
+
+function doReset(){
+  resetState();
+  closeModal();
+  toast("Entorno reiniciado","Todos los datos han vuelto al estado inicial","success");
+  currentView = "dashboard";
+  currentDetail = null;
+  render();
+}
+
+/* ---------- INICIO ---------- */
+render();
+</script>
+</body>
+</html>
